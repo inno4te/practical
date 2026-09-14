@@ -300,6 +300,14 @@ label.field-label{font-size:.82em; font-weight:600; color:var(--navy); display:b
 .pray-btn.prayed{background:#7C4DFF; color:#fff;}
 .mini-comment-row{display:flex; gap:8px; margin-top:8px;}
 .mini-comment-row input{margin-bottom:0; font-size:.85em;}
+.emoji-picker-row{position:relative; margin-bottom:10px;}
+.emoji-picker{position:absolute; top:36px; left:0; z-index:10; background:var(--white); border:1px solid var(--line); border-radius:8px; padding:8px; box-shadow:0 8px 24px rgba(11,31,58,0.18); display:grid; grid-template-columns:repeat(8,1fr); gap:2px; width:260px;}
+.emoji-opt{background:none; border:none; font-size:1.3em; padding:4px; border-radius:5px; cursor:pointer;}
+.emoji-opt:hover{background:var(--offwhite);}
+.react-bar{display:flex; gap:6px; flex-wrap:wrap; margin:8px 0;}
+.react-btn{background:var(--offwhite); border:1px solid var(--line); border-radius:14px; padding:3px 10px; font-size:.9em; cursor:pointer;}
+.react-btn.mine{background:#EEF4FC; border-color:var(--blue);}
+.react-btn:hover{border-color:var(--gold);}
 
 /* ---------- play / games ---------- */
 .game-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
@@ -436,9 +444,11 @@ en: {
   lookingBackFinalExam:'Foundations Certification Exam', lookingBackFinalDesc:'Unlocked once all 21 Looking Back lessons are completed and passed. Thirty minutes, twenty questions.',
   lookingBackFinalLocked:'Complete and pass all 21 Looking Back lessons to unlock the exam.', startLookingBackFinal:'Start Certification Exam',
   assignMentorAction:'Assign', assigned:'Assigned', allForumPosts:'All Mentor Forum Activity', allSlboxPosts:'All SL Box Activity',
-  cloudSync:'Cloud Sync', cloudConnected:'Connected to cloud', cloudOffline:'Not connected — showing local data only', cloudChecking:'Checking…', lastSynced:'Last synced', neverSynced:'Never synced',
-  refreshFromCloud:'Refresh from Cloud', pushLocalToCloud:'Push Local Accounts to Cloud', pushingAccounts:'Pushing accounts…', pushedAccounts:'accounts pushed to cloud',
-  cloudSyncNote:'This confirms whether records are actually saved to Google Sheets, not just this device.',
+  syncNow:'Sync Now', syncError:'Could not reach the Google Sheet — showing last saved data',
+  community:'Community', communityDesc:'One open space for every student and mentor — share, encourage, celebrate. React with emojis, just like WhatsApp.',
+  communityPlaceholder:"What's on your mind?", emoji:'Emoji',
+  allMentors:'All Mentors', noMenteesYet:'No mentees assigned yet', changeRoleAction:'Change Role',
+  changeRoleConfirm:'Change {name} to {role}?',
 
 },
 fr: {
@@ -501,9 +511,11 @@ fr: {
   lookingBackFinalExam:'Examen de Certification des Fondements', lookingBackFinalDesc:"Débloqué une fois les 21 leçons Regard en Arrière terminées et réussies. Trente minutes, vingt questions.",
   lookingBackFinalLocked:"Terminez et réussissez les 21 leçons Regard en Arrière pour débloquer l'examen.", startLookingBackFinal:"Commencer l'Examen de Certification",
   assignMentorAction:'Assigner', assigned:'Assigné', allForumPosts:'Toute l\'Activité du Forum des Mentors', allSlboxPosts:'Toute l\'Activité de la Boîte SL',
-  cloudSync:'Synchronisation Cloud', cloudConnected:'Connecté au cloud', cloudOffline:'Non connecté — affichage des données locales uniquement', cloudChecking:'Vérification…', lastSynced:'Dernière synchronisation', neverSynced:'Jamais synchronisé',
-  refreshFromCloud:'Actualiser depuis le Cloud', pushLocalToCloud:'Pousser les Comptes Locaux vers le Cloud', pushingAccounts:'Envoi des comptes…', pushedAccounts:'comptes envoyés au cloud',
-  cloudSyncNote:"Ceci confirme que les données sont réellement enregistrées dans Google Sheets, pas seulement sur cet appareil.",
+  syncNow:'Synchroniser Maintenant', syncError:"Impossible d'atteindre la Feuille Google — affichage des dernières données enregistrées",
+  community:'Communauté', communityDesc:"Un espace ouvert pour tous les étudiants et mentors — partagez, encouragez, célébrez. Réagissez avec des émojis, comme sur WhatsApp.",
+  communityPlaceholder:"Qu'avez-vous en tête ?", emoji:'Émoji',
+  allMentors:'Tous les Mentors', noMenteesYet:'Aucun mentoré assigné pour le moment', changeRoleAction:'Changer le Rôle',
+  changeRoleConfirm:'Changer {name} en {role} ?',
 
 }
 };
@@ -539,8 +551,8 @@ const State = {
   contentOverrides: JSON.parse(localStorage.getItem('t21_overrides') || '{}'),
   forumPosts: JSON.parse(localStorage.getItem('t21_forumposts') || '[]'),
   slboxPosts: JSON.parse(localStorage.getItem('t21_slboxposts') || '[]'),
+  communityPosts: JSON.parse(localStorage.getItem('t21_communityposts') || '[]'),
   quizRuntime: null, // { week|final, questions, idx, answers, endsAt, timerHandle }
-  cloudSync: JSON.parse(localStorage.getItem('t21_cloudsync') || '{"connected":null,"lastSynced":null}'),
 };
 function persist(key, obj){ localStorage.setItem('t21_'+key, JSON.stringify(obj)); }
 function t(key){ const L = State.lang || 'en'; return (UI[L] && UI[L][key]) || key; }
@@ -609,6 +621,7 @@ function render(){
     case 'lookingBackCertificatePage': wrap.innerHTML = certificateView('lookingback'); break;
     case 'mentorForum': wrap.innerHTML = mentorForumView(); refreshForumPosts().then(()=>{ if(State.view==='mentorForum') document.getElementById('mainwrap').innerHTML = mentorForumView(); }); break;
     case 'slbox': wrap.innerHTML = slboxView(); refreshSlboxPosts().then(()=>{ if(State.view==='slbox') document.getElementById('mainwrap').innerHTML = slboxView(); }); break;
+    case 'community': wrap.innerHTML = communityView(); refreshCommunityPosts().then(()=>{ if(State.view==='community') document.getElementById('mainwrap').innerHTML = communityView(); }); break;
     case 'askAdmin': wrap.innerHTML = askAdminView(); refreshThread(State.user.username, ADMIN_USERNAME).then(()=>{ if(State.view==='askAdmin') document.getElementById('mainwrap').innerHTML = askAdminView(); }); break;
     case 'play': wrap.innerHTML = playView(); break;
     case 'playGame': wrap.innerHTML = playGameView(State.viewParams.kind); break;
@@ -646,6 +659,7 @@ function quickLinksHtml(){
   const links = [];
   links.push(['dashboard', t('dashboard')]);
   if (['mentor','smentor','admin'].includes(u.role)) links.push(['mentorForum', t('mentorForum')]);
+  links.push(['community', t('community')]);
   links.push(['slbox', t('slBox')]);
   links.push(['askAdmin', t('askAdmin')]);
   links.push(['play', t('play')]);
@@ -696,9 +710,13 @@ function landingView(){
       <div class="sub">${t('welcomeSub')}</div>
       <div class="blurb">${t('heroBlurb')}</div>
       <div class="cta-row">
-        <button class="btn-primary" onclick="goto('login')">${t('login')}</button>
-        <button class="btn-secondary" onclick="goto('register')">${t('register')}</button>
-        <button class="btn-secondary" onclick="goto('mentorLogin')">${t('mentor')}</button>
+        ${State.user ? `
+          <button class="btn-primary" onclick="goto('dashboard')">${t('dashboard')}</button>
+        ` : `
+          <button class="btn-primary" onclick="goto('login')">${t('login')}</button>
+          <button class="btn-secondary" onclick="goto('register')">${t('register')}</button>
+          <button class="btn-secondary" onclick="goto('mentorLogin')">${t('mentor')}</button>
+        `}
       </div>
     </div>
   </div>
@@ -782,7 +800,8 @@ async function doLogin(kind){
   if (!username || !password){ showNotice('loginNotice','fieldsRequired','error'); return; }
   // try local cache first (offline-friendly), then backend
   let user = (State.users.find(u => u.username === username) || null);
-  const remote = await apiGet('login', { username, password });
+  let remote = null;
+  try { remote = await apiGet('login', { username, password }); } catch(e){ remote = null; }
   if (remote && remote.ok){ user = remote.user; }
   else if (!remote) {
     // offline fallback: allow seeded admin/smentor or previously-registered local accounts
@@ -796,10 +815,8 @@ async function doLogin(kind){
   if (!user){ showNotice('loginNotice','loginError','error'); return; }
   if (kind === 'mentor' && !['mentor','smentor','admin'].includes(user.role)){ showNotice('loginNotice','loginError','error'); return; }
   State.user = user; persist('user', user);
-  // Switch away from the login form immediately so it doesn't linger on screen
-  // while we fetch/refresh data from the cloud in the background.
+  try { await hydrateAfterLogin(); } catch(e){ /* never let a sync hiccup trap the user on the login screen */ }
   goto('dashboard');
-  hydrateAfterLogin().then(()=>{ if (State.user) render(); }).catch(()=>{});
 }
 
 async function doRegister(kind){
@@ -818,8 +835,8 @@ async function doRegister(kind){
   apiPost('register', { username, password, role, fullName, language:State.lang, mentor });
   if (kind==='mentor'){ showNotice('regNotice','mentorAccountCreated','success'); setTimeout(()=>goto('mentorLogin'),1200); return; }
   State.user = newUser; persist('user', newUser);
+  try { await hydrateAfterLogin(); } catch(e){ /* never let a sync hiccup trap the user on the register screen */ }
   goto('dashboard');
-  hydrateAfterLogin().then(()=>{ if (State.user) render(); }).catch(()=>{});
 }
 
 function doLogout(){
@@ -829,83 +846,24 @@ function doLogout(){
 }
 
 async function hydrateAfterLogin(){
-  let users, progress, mentors;
+  let users=null, progress=null, mentors=null;
   try {
     [users, progress, mentors] = await Promise.all([
       apiGet('allusers', {}), apiGet('progress', { username: State.user.username }), apiGet('mentors', {})
     ]);
-  } catch(e){ /* backend unreachable — fall back to whatever is cached locally */ }
-
-  // Treat a real (array) response from the backend as proof the cloud connection works.
-  setCloudSyncStatus(Array.isArray(users));
-
-  try {
-    if (Array.isArray(users) && users.length) { State.users = users; persist('users', users); }
-    if (Array.isArray(progress)) {
-      State.progress[State.user.username] = {};
-      progress.forEach(p => { State.progress[State.user.username][p.week] = { completed: p.completed, quizScore: p.quizScore, quizPassed: p.quizPassed, attempts: p.attempts }; });
-      persist('progress', State.progress);
-    }
-    const overrides = await apiGet('contentoverrides', {});
-    if (Array.isArray(overrides)) {
-      overrides.forEach(o => { State.contentOverrides[o.weekKey+'_'+o.lang] = JSON.parse(o.jsonBlob); });
-      persist('overrides', State.contentOverrides);
-    }
-  } catch(e){ /* don't let a malformed response block navigation/rendering */ }
-}
-
-/* ================= CLOUD SYNC STATUS ================= */
-function setCloudSyncStatus(connected){
-  State.cloudSync.connected = connected;
-  if (connected) State.cloudSync.lastSynced = Date.now();
-  localStorage.setItem('t21_cloudsync', JSON.stringify(State.cloudSync));
-}
-async function checkCloudSync(){
-  if (State.cloudSync._checking) return;
-  State.cloudSync._checking = true;
-  State.cloudSync.connected = null; // "checking…"
-  render();
-  let users = null;
-  try { users = await apiGet('allusers', {}); } catch(e){}
-  State.cloudSync._checking = false;
-  setCloudSyncStatus(Array.isArray(users));
-  if (Array.isArray(users) && users.length){ State.users = users; persist('users', users); }
-  render();
-}
-function cloudSyncBadgeHtml(){
-  const cs = State.cloudSync || {};
-  const label = cs.connected === true ? t('cloudConnected') : (cs.connected === false ? t('cloudOffline') : t('cloudChecking'));
-  const dotColor = cs.connected === true ? 'var(--success)' : (cs.connected === false ? 'var(--danger)' : 'var(--gold)');
-  const lastSync = cs.lastSynced ? new Date(cs.lastSynced).toLocaleString() : t('neverSynced');
-  return `<div class="card square-accent" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-    <div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span style="width:10px;height:10px;border-radius:50%;background:${dotColor};display:inline-block;"></span>
-        <strong>${t('cloudSync')}:</strong> <span>${label}</span>
-      </div>
-      <div style="color:var(--grey);font-size:.82em;margin-top:4px;">${t('lastSynced')}: ${lastSync}</div>
-      <div style="color:var(--grey);font-size:.78em;margin-top:2px;">${t('cloudSyncNote')}</div>
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="small-btn" onclick="checkCloudSync()">${t('refreshFromCloud')}</button>
-      ${State.user && State.user.role==='admin' ? `<button class="small-btn" onclick="pushLocalAccountsToCloud()">${t('pushLocalToCloud')}</button>` : ''}
-    </div>
-  </div>`;
-}
-async function pushLocalAccountsToCloud(){
-  const local = JSON.parse(localStorage.getItem('t21_localauth')||'{}');
-  const usernames = Object.keys(local);
-  if (!usernames.length) return;
-  const notice = document.getElementById('cloudPushNotice');
-  if (notice) notice.innerHTML = `<div class="notice info">${t('pushingAccounts')}</div>`;
-  usernames.forEach(u => {
-    const acc = local[u];
-    apiPost('register', { username: acc.username, password: acc.password, role: acc.role, fullName: acc.fullName, language: acc.language||State.lang, mentor: acc.mentor||'' });
-  });
-  // no-cors POSTs give no confirmation, so we optimistically report the count queued
-  await new Promise(r=>setTimeout(r, 600));
-  if (notice) notice.innerHTML = `<div class="notice success">${usernames.length} ${t('pushedAccounts')}</div>`;
-  checkCloudSync();
+  } catch(e){ /* keep whatever was already cached locally */ }
+  if (users && Array.isArray(users)) { State.users = users; persist('users', users); }
+  if (progress && Array.isArray(progress)) {
+    State.progress[State.user.username] = {};
+    progress.forEach(p => { State.progress[State.user.username][p.week] = { completed: p.completed, quizScore: p.quizScore, quizPassed: p.quizPassed, attempts: p.attempts }; });
+    persist('progress', State.progress);
+  }
+  let overrides = null;
+  try { overrides = await apiGet('contentoverrides', {}); } catch(e){ overrides = null; }
+  if (overrides && Array.isArray(overrides)) {
+    overrides.forEach(o => { State.contentOverrides[o.weekKey+'_'+o.lang] = JSON.parse(o.jsonBlob); });
+    persist('overrides', State.contentOverrides);
+  }
 }
 
 function showNotice(elId, key, type){
@@ -988,10 +946,46 @@ function dashboardView(){
   if (role === 'admin') return adminDashView();
   return studentDashView();
 }
+let SyncStatus = { state:'idle', lastSync: null, error:null };
 function afterDashboardRender(){
-  if (State.user && State.user.role==='admin' && State.cloudSync && State.cloudSync.connected===null){
-    checkCloudSync();
-  }
+  const u = State.user;
+  if (!u) return;
+  if (u.role === 'admin') refreshAdminData();
+  else if (u.role === 'mentor' || u.role === 'smentor') refreshMenteeData();
+}
+async function refreshAdminData(){
+  SyncStatus.state = 'syncing'; updateSyncBadge();
+  try {
+    const users = await apiGet('allusers', {});
+    if (users && Array.isArray(users) && users.length){ State.users = users; persist('users', users); }
+    SyncStatus.state = 'ok'; SyncStatus.lastSync = Date.now(); SyncStatus.error = null;
+  } catch(e){ SyncStatus.state = 'error'; SyncStatus.error = String(e); }
+  if (State.view === 'dashboard' && State.user && State.user.role === 'admin') { document.getElementById('mainwrap').innerHTML = adminDashView(); }
+}
+async function refreshMenteeData(){
+  try {
+    const users = await apiGet('allusers', {});
+    if (users && Array.isArray(users) && users.length){ State.users = users; persist('users', users); }
+  } catch(e){ /* keep local cache */ }
+  if (State.view === 'dashboard' && State.user && ['mentor','smentor'].includes(State.user.role)) { document.getElementById('mainwrap').innerHTML = dashboardView(); }
+}
+function manualSyncNow(){
+  refreshAdminData();
+}
+function updateSyncBadge(){
+  const el = document.getElementById('syncBadge');
+  if (el) el.outerHTML = syncBadgeHtml();
+}
+function syncBadgeHtml(){
+  const label = SyncStatus.state==='syncing' ? t('syncing')
+    : SyncStatus.state==='error' ? t('syncError')
+    : SyncStatus.lastSync ? t('synced')+' · '+new Date(SyncStatus.lastSync).toLocaleTimeString()
+    : t('syncing');
+  const cls = SyncStatus.state==='error' ? 'error' : (SyncStatus.state==='syncing' ? 'info' : 'success');
+  return `<div id="syncBadge" class="notice ${cls}" style="display:inline-flex;align-items:center;gap:10px;">
+    <span>${label}</span>
+    <button class="small-btn" onclick="manualSyncNow()">${t('syncNow')}</button>
+  </div>`;
 }
 
 function studentDashView(){
@@ -1747,6 +1741,99 @@ function prayForSlboxPost(postId){
   goto('slbox');
 }
 
+/* ================= COMMUNITY (social feed for everyone, WhatsApp-style) ================= */
+const QUICK_EMOJIS = ['👍','❤️','😂','🙏','😮','😢','🎉','🔥'];
+const EMOJI_PICKER_SET = ['😀','😁','😂','🤣','😊','😇','🙂','😉','😍','😘','🤩','🥳','😎','🤔','😴','😢','😭','😮','😱','👍','👏','🙌','🙏','💪','❤️','🔥','🎉','✨','💯','👑'];
+async function refreshCommunityPosts(){
+  const remote = await apiGet('communityposts', {});
+  if (remote){ State.communityPosts = remote; persist('communityposts', State.communityPosts); }
+}
+function communityView(){
+  const posts = State.communityPosts.slice().sort((a,b)=>b.timestamp-a.timestamp);
+  return `
+  <div class="card">
+    <h3>${t('community')}</h3>
+    <p style="color:var(--grey);">${t('communityDesc')}</p>
+    <div class="post-composer">
+      <textarea id="communityBox" rows="3" placeholder="${t('communityPlaceholder')}"></textarea>
+      <div class="emoji-picker-row">
+        <button class="small-btn" onclick="toggleEmojiPicker()">😊 ${t('emoji')}</button>
+        <div id="emojiPicker" class="emoji-picker hidden">
+          ${EMOJI_PICKER_SET.map(e=>`<button class="emoji-opt" onclick="insertEmoji('${e}')">${e}</button>`).join('')}
+        </div>
+      </div>
+      <button class="btn-primary" onclick="postToCommunity()">${t('post')}</button>
+    </div>
+  </div>
+  <div class="card">
+    ${posts.length ? posts.map(p=>communityPostCardHtml(p, State.user.username)).join('') : `<div style="color:var(--grey);text-align:center;padding:20px;">${t('noPostsYet')}</div>`}
+  </div>
+  <button class="small-btn" onclick="goto('dashboard')">${t('backToDash')}</button>`;
+}
+function toggleEmojiPicker(){
+  const el = document.getElementById('emojiPicker');
+  if (el) el.classList.toggle('hidden');
+}
+function insertEmoji(e){
+  const box = document.getElementById('communityBox');
+  if (box){ box.value += e; box.focus(); }
+}
+function communityPostCardHtml(p, me){
+  const reactions = p.reactions || {};
+  const reactionBar = QUICK_EMOJIS.map(e=>{
+    const users = reactions[e] || [];
+    const mine = users.includes(me);
+    if (!users.length && !mine) return `<button class="react-btn" onclick="reactToCommunityPost('${p.id}','${e}')">${e}</button>`;
+    return `<button class="react-btn ${mine?'mine':''}" onclick="reactToCommunityPost('${p.id}','${e}')">${e} ${users.length}</button>`;
+  }).join('');
+  return `<div class="post-card" data-post-id="${p.id}">
+    <div class="post-meta"><strong>${escapeHtml(p.fromName||p.from)}</strong><span>${new Date(p.timestamp).toLocaleString()}</span></div>
+    <div class="post-text" style="font-size:1.05em;">${escapeHtml(p.text)}</div>
+    <div class="react-bar">${reactionBar}</div>
+    <div class="post-comments">
+      ${(p.comments||[]).map(c=>`<div class="post-comment"><span class="cauthor">${escapeHtml(c.fromName||c.from)}:</span>${escapeHtml(c.text)}</div>`).join('')}
+      <div class="mini-comment-row">
+        <input id="communityCommentBox_${p.id}" placeholder="${t('commentPlaceholder')}" onkeydown="if(event.key==='Enter')addCommunityComment('${p.id}')">
+        <button class="small-btn" onclick="addCommunityComment('${p.id}')">${t('comment')}</button>
+      </div>
+    </div>
+  </div>`;
+}
+function postToCommunity(){
+  const box = document.getElementById('communityBox');
+  const text = box.value.trim(); if (!text) return;
+  const u = State.user;
+  const post = { id:'c'+Date.now(), from:u.username, fromName:u.fullName||u.username, text, timestamp:Date.now(), reactions:{}, comments:[] };
+  State.communityPosts.push(post);
+  persist('communityposts', State.communityPosts);
+  apiPost('communityPost', { id:post.id, from:u.username, fromName:post.fromName, text });
+  goto('community');
+}
+function addCommunityComment(postId){
+  const box = document.getElementById('communityCommentBox_'+postId);
+  const text = box.value.trim(); if (!text) return;
+  const u = State.user;
+  const post = State.communityPosts.find(p=>p.id===postId);
+  if (!post) return;
+  post.comments = post.comments || [];
+  post.comments.push({ from:u.username, fromName:u.fullName||u.username, text, timestamp:Date.now() });
+  persist('communityposts', State.communityPosts);
+  apiPost('communityComment', { postId, from:u.username, fromName:u.fullName||u.username, text });
+  goto('community');
+}
+function reactToCommunityPost(postId, emoji){
+  const u = State.user;
+  const post = State.communityPosts.find(p=>p.id===postId);
+  if (!post) return;
+  post.reactions = post.reactions || {};
+  post.reactions[emoji] = post.reactions[emoji] || [];
+  const idx = post.reactions[emoji].indexOf(u.username);
+  if (idx === -1) post.reactions[emoji].push(u.username); else post.reactions[emoji].splice(idx,1);
+  persist('communityposts', State.communityPosts);
+  apiPost('communityReact', { postId, from:u.username, emoji });
+  goto('community');
+}
+
 /* ================= ASK ADMIN (private line to the admin account) ================= */
 const ADMIN_USERNAME = 'forteh';
 function askAdminView(){
@@ -1996,9 +2083,7 @@ function adminDashView(){
   const totalCerts = State.certs.length;
   const avgProg = students.length ? Math.round(students.reduce((s,x)=>s+overallPercent(x.username),0)/students.length) : 0;
   return `
-  <div class="card"><h3>${t('adminDash')}</h3></div>
-  ${cloudSyncBadgeHtml()}
-  <div id="cloudPushNotice"></div>
+  <div class="card"><h3>${t('adminDash')}</h3>${syncBadgeHtml()}</div>
   <div class="grid cols-3">
     <div class="card square-accent"><h3>${students.length}</h3><div>${t('totalStudents')}</div></div>
     <div class="card square-accent"><h3>${mentors.length}</h3><div>${t('totalMentors')}</div></div>
@@ -2007,16 +2092,37 @@ function adminDashView(){
   <div class="card">
     <div class="tabs">
       <button class="tab-btn active" onclick="setAdminTab('students')" id="tabStudents">${t('allStudents')}</button>
+      <button class="tab-btn" onclick="setAdminTab('mentors')" id="tabMentors">${t('allMentors')}</button>
       <button class="tab-btn" onclick="setAdminTab('content')" id="tabContent">${t('manageContent')}</button>
       <button class="tab-btn" onclick="setAdminTab('activity')" id="tabActivity">${t('allForumPosts')}</button>
     </div>
     <div id="adminTabBody">${adminStudentsTable(students)}</div>
   </div>`;
 }
+function roleChangePickerHtml(username, currentRole){
+  const roles = ['student','mentor'];
+  return `<select id="rolePick_${username}" style="margin-bottom:0;font-size:.8em;">
+      ${roles.map(r=>`<option value="${r}" ${currentRole===r?'selected':''}>${roleLabel(r)}</option>`).join('')}
+    </select>
+    <button class="small-btn" onclick="adminChangeRole('${username}')">${t('changeRoleAction')}</button>`;
+}
+function adminChangeRole(username){
+  const sel = document.getElementById('rolePick_'+username);
+  const newRole = sel.value;
+  const user = State.users.find(u=>u.username===username);
+  if (!user) return;
+  if (user.role === newRole) return;
+  if (!confirm(t('changeRoleConfirm').replace('{name}', user.fullName||username).replace('{role}', roleLabel(newRole)))) return;
+  user.role = newRole;
+  persist('users', State.users);
+  apiPost('changeRole', { username, role:newRole });
+  render();
+  setAdminTab(newRole==='mentor' ? 'mentors' : 'students');
+}
 function adminStudentsTable(students){
   const mentors = State.users.filter(u=>u.role==='mentor');
   return `<table class="data-table"><thead><tr>
-    <th>${t('fullName')}</th><th>${t('username')}</th><th>${t('overallProgress')}</th><th>${t('myMentor')}</th><th></th><th></th></tr></thead><tbody>
+    <th>${t('fullName')}</th><th>${t('username')}</th><th>${t('overallProgress')}</th><th>${t('myMentor')}</th><th></th><th>${t('changeRoleAction')}</th><th></th></tr></thead><tbody>
     ${students.map(s=>`<tr><td>${s.fullName||''}</td><td>${s.username}</td><td>${overallPercent(s.username)}%</td><td>${s.mentor||'—'}</td>
       <td>
         <select id="mentorPick_${s.username}" style="margin-bottom:0;font-size:.8em;">
@@ -2025,7 +2131,22 @@ function adminStudentsTable(students){
         </select>
         <button class="small-btn" onclick="adminAssignMentor('${s.username}')">${t('assignMentorAction')}</button>
       </td>
+      <td>${roleChangePickerHtml(s.username, 'student')}</td>
       <td><button class="small-btn danger" onclick="adminDeleteUser('${s.username}')">${t('delete')}</button></td></tr>`).join('')}
+  </tbody></table>`;
+}
+function adminMentorsTable(mentors){
+  return `<table class="data-table"><thead><tr>
+    <th>${t('fullName')}</th><th>${t('username')}</th><th>${t('myMentees')}</th><th>${t('changeRoleAction')}</th><th></th></tr></thead><tbody>
+    ${mentors.map(m=>{
+      const mentees = menteesFor(m.username);
+      const menteeList = mentees.length
+        ? mentees.map(x=>x.fullName||x.username).join(', ')
+        : `<span style="color:var(--grey);">${t('noMenteesYet')}</span>`;
+      return `<tr><td>${m.fullName||''}</td><td>${m.username}</td><td style="max-width:320px;">${menteeList}</td>
+      <td>${roleChangePickerHtml(m.username, 'mentor')}</td>
+      <td><button class="small-btn danger" onclick="adminDeleteUser('${m.username}')">${t('delete')}</button></td></tr>`;
+    }).join('')}
   </tbody></table>`;
 }
 function adminAssignMentor(studentUsername){
@@ -2043,11 +2164,14 @@ function adminAssignMentor(studentUsername){
 function adminActivityView(){
   const forumPosts = State.forumPosts.slice().sort((a,b)=>b.timestamp-a.timestamp);
   const slboxPosts = State.slboxPosts.slice().sort((a,b)=>b.timestamp-a.timestamp);
+  const communityPosts = State.communityPosts.slice().sort((a,b)=>b.timestamp-a.timestamp);
   return `
   <h4 style="margin-top:0;">${t('allForumPosts')}</h4>
   ${forumPosts.length ? forumPosts.map(p=>forumPostCardHtml(p)).join('') : `<div style="color:var(--grey);padding:10px;">${t('noPostsYet')}</div>`}
   <h4>${t('allSlboxPosts')}</h4>
   ${slboxPosts.length ? slboxPosts.map(p=>slboxPostCardHtml(p, State.user.username)).join('') : `<div style="color:var(--grey);padding:10px;">${t('noPostsYet')}</div>`}
+  <h4>${t('community')}</h4>
+  ${communityPosts.length ? communityPosts.map(p=>communityPostCardHtml(p, State.user.username)).join('') : `<div style="color:var(--grey);padding:10px;">${t('noPostsYet')}</div>`}
   `;
 }
 function adminContentTable(){
@@ -2061,13 +2185,15 @@ function adminContentTable(){
 }
 function setAdminTab(tab){
   document.getElementById('tabStudents').classList.toggle('active', tab==='students');
+  document.getElementById('tabMentors').classList.toggle('active', tab==='mentors');
   document.getElementById('tabContent').classList.toggle('active', tab==='content');
   document.getElementById('tabActivity').classList.toggle('active', tab==='activity');
   if (tab==='students') document.getElementById('adminTabBody').innerHTML = adminStudentsTable(State.users.filter(u=>u.role==='student'));
+  else if (tab==='mentors') document.getElementById('adminTabBody').innerHTML = adminMentorsTable(State.users.filter(u=>u.role==='mentor'));
   else if (tab==='content') document.getElementById('adminTabBody').innerHTML = adminContentTable();
   else {
     document.getElementById('adminTabBody').innerHTML = adminActivityView();
-    Promise.all([refreshForumPosts(), refreshSlboxPosts()]).then(()=>{
+    Promise.all([refreshForumPosts(), refreshSlboxPosts(), refreshCommunityPosts()]).then(()=>{
       if (document.getElementById('tabActivity').classList.contains('active')) document.getElementById('adminTabBody').innerHTML = adminActivityView();
     });
   }
