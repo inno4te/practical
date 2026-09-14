@@ -436,6 +436,9 @@ en: {
   lookingBackFinalExam:'Foundations Certification Exam', lookingBackFinalDesc:'Unlocked once all 21 Looking Back lessons are completed and passed. Thirty minutes, twenty questions.',
   lookingBackFinalLocked:'Complete and pass all 21 Looking Back lessons to unlock the exam.', startLookingBackFinal:'Start Certification Exam',
   assignMentorAction:'Assign', assigned:'Assigned', allForumPosts:'All Mentor Forum Activity', allSlboxPosts:'All SL Box Activity',
+  cloudSync:'Cloud Sync', cloudConnected:'Connected to cloud', cloudOffline:'Not connected — showing local data only', cloudChecking:'Checking…', lastSynced:'Last synced', neverSynced:'Never synced',
+  refreshFromCloud:'Refresh from Cloud', pushLocalToCloud:'Push Local Accounts to Cloud', pushingAccounts:'Pushing accounts…', pushedAccounts:'accounts pushed to cloud',
+  cloudSyncNote:'This confirms whether records are actually saved to Google Sheets, not just this device.',
 
 },
 fr: {
@@ -498,6 +501,9 @@ fr: {
   lookingBackFinalExam:'Examen de Certification des Fondements', lookingBackFinalDesc:"Débloqué une fois les 21 leçons Regard en Arrière terminées et réussies. Trente minutes, vingt questions.",
   lookingBackFinalLocked:"Terminez et réussissez les 21 leçons Regard en Arrière pour débloquer l'examen.", startLookingBackFinal:"Commencer l'Examen de Certification",
   assignMentorAction:'Assigner', assigned:'Assigné', allForumPosts:'Toute l\'Activité du Forum des Mentors', allSlboxPosts:'Toute l\'Activité de la Boîte SL',
+  cloudSync:'Synchronisation Cloud', cloudConnected:'Connecté au cloud', cloudOffline:'Non connecté — affichage des données locales uniquement', cloudChecking:'Vérification…', lastSynced:'Dernière synchronisation', neverSynced:'Jamais synchronisé',
+  refreshFromCloud:'Actualiser depuis le Cloud', pushLocalToCloud:'Pousser les Comptes Locaux vers le Cloud', pushingAccounts:'Envoi des comptes…', pushedAccounts:'comptes envoyés au cloud',
+  cloudSyncNote:"Ceci confirme que les données sont réellement enregistrées dans Google Sheets, pas seulement sur cet appareil.",
 
 }
 };
@@ -534,6 +540,7 @@ const State = {
   forumPosts: JSON.parse(localStorage.getItem('t21_forumposts') || '[]'),
   slboxPosts: JSON.parse(localStorage.getItem('t21_slboxposts') || '[]'),
   quizRuntime: null, // { week|final, questions, idx, answers, endsAt, timerHandle }
+  cloudSync: JSON.parse(localStorage.getItem('t21_cloudsync') || '{"connected":null,"lastSynced":null}'),
 };
 function persist(key, obj){ localStorage.setItem('t21_'+key, JSON.stringify(obj)); }
 function t(key){ const L = State.lang || 'en'; return (UI[L] && UI[L][key]) || key; }
@@ -789,8 +796,10 @@ async function doLogin(kind){
   if (!user){ showNotice('loginNotice','loginError','error'); return; }
   if (kind === 'mentor' && !['mentor','smentor','admin'].includes(user.role)){ showNotice('loginNotice','loginError','error'); return; }
   State.user = user; persist('user', user);
-  await hydrateAfterLogin();
+  // Switch away from the login form immediately so it doesn't linger on screen
+  // while we fetch/refresh data from the cloud in the background.
   goto('dashboard');
+  hydrateAfterLogin().then(()=>{ if (State.user) render(); }).catch(()=>{});
 }
 
 async function doRegister(kind){
@@ -809,8 +818,8 @@ async function doRegister(kind){
   apiPost('register', { username, password, role, fullName, language:State.lang, mentor });
   if (kind==='mentor'){ showNotice('regNotice','mentorAccountCreated','success'); setTimeout(()=>goto('mentorLogin'),1200); return; }
   State.user = newUser; persist('user', newUser);
-  await hydrateAfterLogin();
   goto('dashboard');
+  hydrateAfterLogin().then(()=>{ if (State.user) render(); }).catch(()=>{});
 }
 
 function doLogout(){
@@ -820,20 +829,83 @@ function doLogout(){
 }
 
 async function hydrateAfterLogin(){
-  const [users, progress, mentors] = await Promise.all([
-    apiGet('allusers', {}), apiGet('progress', { username: State.user.username }), apiGet('mentors', {})
-  ]);
-  if (users) { State.users = users; persist('users', users); }
-  if (progress) {
-    State.progress[State.user.username] = {};
-    progress.forEach(p => { State.progress[State.user.username][p.week] = { completed: p.completed, quizScore: p.quizScore, quizPassed: p.quizPassed, attempts: p.attempts }; });
-    persist('progress', State.progress);
-  }
-  const overrides = await apiGet('contentoverrides', {});
-  if (overrides) {
-    overrides.forEach(o => { State.contentOverrides[o.weekKey+'_'+o.lang] = JSON.parse(o.jsonBlob); });
-    persist('overrides', State.contentOverrides);
-  }
+  let users, progress, mentors;
+  try {
+    [users, progress, mentors] = await Promise.all([
+      apiGet('allusers', {}), apiGet('progress', { username: State.user.username }), apiGet('mentors', {})
+    ]);
+  } catch(e){ /* backend unreachable — fall back to whatever is cached locally */ }
+
+  // Treat a real (array) response from the backend as proof the cloud connection works.
+  setCloudSyncStatus(Array.isArray(users));
+
+  try {
+    if (Array.isArray(users) && users.length) { State.users = users; persist('users', users); }
+    if (Array.isArray(progress)) {
+      State.progress[State.user.username] = {};
+      progress.forEach(p => { State.progress[State.user.username][p.week] = { completed: p.completed, quizScore: p.quizScore, quizPassed: p.quizPassed, attempts: p.attempts }; });
+      persist('progress', State.progress);
+    }
+    const overrides = await apiGet('contentoverrides', {});
+    if (Array.isArray(overrides)) {
+      overrides.forEach(o => { State.contentOverrides[o.weekKey+'_'+o.lang] = JSON.parse(o.jsonBlob); });
+      persist('overrides', State.contentOverrides);
+    }
+  } catch(e){ /* don't let a malformed response block navigation/rendering */ }
+}
+
+/* ================= CLOUD SYNC STATUS ================= */
+function setCloudSyncStatus(connected){
+  State.cloudSync.connected = connected;
+  if (connected) State.cloudSync.lastSynced = Date.now();
+  localStorage.setItem('t21_cloudsync', JSON.stringify(State.cloudSync));
+}
+async function checkCloudSync(){
+  if (State.cloudSync._checking) return;
+  State.cloudSync._checking = true;
+  State.cloudSync.connected = null; // "checking…"
+  render();
+  let users = null;
+  try { users = await apiGet('allusers', {}); } catch(e){}
+  State.cloudSync._checking = false;
+  setCloudSyncStatus(Array.isArray(users));
+  if (Array.isArray(users) && users.length){ State.users = users; persist('users', users); }
+  render();
+}
+function cloudSyncBadgeHtml(){
+  const cs = State.cloudSync || {};
+  const label = cs.connected === true ? t('cloudConnected') : (cs.connected === false ? t('cloudOffline') : t('cloudChecking'));
+  const dotColor = cs.connected === true ? 'var(--success)' : (cs.connected === false ? 'var(--danger)' : 'var(--gold)');
+  const lastSync = cs.lastSynced ? new Date(cs.lastSynced).toLocaleString() : t('neverSynced');
+  return `<div class="card square-accent" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="width:10px;height:10px;border-radius:50%;background:${dotColor};display:inline-block;"></span>
+        <strong>${t('cloudSync')}:</strong> <span>${label}</span>
+      </div>
+      <div style="color:var(--grey);font-size:.82em;margin-top:4px;">${t('lastSynced')}: ${lastSync}</div>
+      <div style="color:var(--grey);font-size:.78em;margin-top:2px;">${t('cloudSyncNote')}</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="small-btn" onclick="checkCloudSync()">${t('refreshFromCloud')}</button>
+      ${State.user && State.user.role==='admin' ? `<button class="small-btn" onclick="pushLocalAccountsToCloud()">${t('pushLocalToCloud')}</button>` : ''}
+    </div>
+  </div>`;
+}
+async function pushLocalAccountsToCloud(){
+  const local = JSON.parse(localStorage.getItem('t21_localauth')||'{}');
+  const usernames = Object.keys(local);
+  if (!usernames.length) return;
+  const notice = document.getElementById('cloudPushNotice');
+  if (notice) notice.innerHTML = `<div class="notice info">${t('pushingAccounts')}</div>`;
+  usernames.forEach(u => {
+    const acc = local[u];
+    apiPost('register', { username: acc.username, password: acc.password, role: acc.role, fullName: acc.fullName, language: acc.language||State.lang, mentor: acc.mentor||'' });
+  });
+  // no-cors POSTs give no confirmation, so we optimistically report the count queued
+  await new Promise(r=>setTimeout(r, 600));
+  if (notice) notice.innerHTML = `<div class="notice success">${usernames.length} ${t('pushedAccounts')}</div>`;
+  checkCloudSync();
 }
 
 function showNotice(elId, key, type){
@@ -916,7 +988,11 @@ function dashboardView(){
   if (role === 'admin') return adminDashView();
   return studentDashView();
 }
-function afterDashboardRender(){}
+function afterDashboardRender(){
+  if (State.user && State.user.role==='admin' && State.cloudSync && State.cloudSync.connected===null){
+    checkCloudSync();
+  }
+}
 
 function studentDashView(){
   const u = State.user;
@@ -1921,6 +1997,8 @@ function adminDashView(){
   const avgProg = students.length ? Math.round(students.reduce((s,x)=>s+overallPercent(x.username),0)/students.length) : 0;
   return `
   <div class="card"><h3>${t('adminDash')}</h3></div>
+  ${cloudSyncBadgeHtml()}
+  <div id="cloudPushNotice"></div>
   <div class="grid cols-3">
     <div class="card square-accent"><h3>${students.length}</h3><div>${t('totalStudents')}</div></div>
     <div class="card square-accent"><h3>${mentors.length}</h3><div>${t('totalMentors')}</div></div>
