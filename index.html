@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0B1F3A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Team21 Academy — Servant Leadership LMS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Source+Serif+4:ital@0;1&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
@@ -277,11 +280,54 @@ label.field-label{font-size:.82em; font-weight:600; color:var(--navy); display:b
 .cert-frame .sigrow .sig-label{font-size:.82em; color:#3A4A61;}
 .cert-frame .sealbox{position:relative; width:64px; height:64px; border:3px solid var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.62em; color:var(--gold-dark); font-weight:700; text-align:center; flex-shrink:0;}
 
-/* ---------- quick links strip ---------- */
-.quicklinks{display:flex; gap:8px; padding:9px 26px; background:var(--navy2); flex-wrap:wrap; border-bottom:1px solid rgba(255,255,255,0.08);}
-.ql-btn{background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.18); color:#DCE6F5; padding:6px 13px; border-radius:16px; font-size:.8em;}
-.ql-btn:hover{background:rgba(255,255,255,0.15);}
-.ql-btn.active{background:var(--gold); color:var(--navy); border-color:var(--gold); font-weight:700;}
+/* ---------- quick links nav — 3D raised buttons ---------- */
+.quicklinks{
+  display:flex; gap:9px; padding:11px 16px;
+  background:linear-gradient(180deg, #1E3E74 0%, #0F2549 100%);
+  overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none;
+  border-bottom:2px solid rgba(0,0,0,0.3);
+  box-shadow:inset 0 -3px 8px rgba(0,0,0,0.22), 0 3px 8px rgba(0,0,0,0.18);
+  flex-shrink:0; position:relative; z-index:15;
+}
+.quicklinks::-webkit-scrollbar{display:none;}
+.ql-btn{
+  background:linear-gradient(180deg, #2E62A8 0%, #1B3E74 55%, #142F5E 100%);
+  border:1px solid rgba(100,160,255,0.22);
+  border-bottom:3px solid rgba(0,0,0,0.38);
+  border-top:1px solid rgba(255,255,255,0.14);
+  color:#C8DEFF; padding:9px 16px; border-radius:10px;
+  font-size:.82em; font-weight:600; white-space:nowrap;
+  letter-spacing:.3px; cursor:pointer; flex-shrink:0;
+  min-height:40px; line-height:1;
+  box-shadow:
+    0 4px 8px rgba(0,0,0,0.28),
+    inset 0 1px 0 rgba(255,255,255,0.14),
+    inset 0 -2px 0 rgba(0,0,0,0.18);
+  transition:transform .1s, box-shadow .1s, background .1s;
+  -webkit-tap-highlight-color:transparent; user-select:none;
+}
+.ql-btn:hover{
+  background:linear-gradient(180deg, #3A6EC0 0%, #244880 55%, #1A3666 100%);
+  color:#fff; transform:translateY(-1px);
+  box-shadow:0 6px 14px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+.ql-btn:active{
+  transform:translateY(2px);
+  box-shadow:0 1px 3px rgba(0,0,0,0.3), inset 0 2px 5px rgba(0,0,0,0.22);
+  border-bottom-width:1px;
+}
+.ql-btn.active{
+  background:linear-gradient(180deg, #F8CB18 0%, #D9A800 55%, #BC9000 100%);
+  border:1px solid rgba(242,183,5,.4);
+  border-bottom:3px solid rgba(140,100,0,.55);
+  border-top:1px solid rgba(255,245,140,.45);
+  color:#0B1F3A; font-weight:700;
+  box-shadow:
+    0 4px 12px rgba(242,183,5,.38),
+    inset 0 1px 0 rgba(255,255,200,.45),
+    inset 0 -2px 0 rgba(150,100,0,.28);
+}
+.ql-btn.active:active{border-bottom-width:1px; transform:translateY(2px);}
 
 /* ---------- forum / sl box ---------- */
 .post-composer{margin-bottom:18px;}
@@ -406,6 +452,172 @@ table.data-table tr:hover td{background:var(--offwhite);}
 .small-btn.danger{color:var(--danger); border-color:#F0C6C0;}
 .icon-btn{background:transparent; border:none; font-size:1.1em; color:var(--blue);}
 textarea{min-height:80px; resize:vertical;}
+/* ================================================================
+   MOBILE-FIRST RESPONSIVE OVERRIDES
+   Primary audience: phones 360-430px, tablets 600-800px
+   ================================================================ */
+
+/* --- prevent iOS auto-zoom on inputs (needs 16px min) --- */
+@media (max-width:768px){
+  input, select, textarea { font-size:16px !important; }
+}
+
+/* --- make data tables scroll horizontally instead of overflowing --- */
+.data-table-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.data-table{ width:100%; border-collapse:collapse; min-width:540px; font-size:.88em; }
+.data-table th,.data-table td{ padding:10px 12px; border-bottom:1px solid var(--line); text-align:left; }
+.data-table th{ background:var(--offwhite); font-weight:700; color:var(--navy); }
+
+/* --- topbar compresses on small screens --- */
+@media (max-width:600px){
+  .topbar{ padding:10px 14px; }
+  .topbar .brand img{ height:34px; }
+  .topbar .brand .name{ font-size:.95em; }
+  .topbar .brand .tag{ display:none; }
+  .pill-btn{ padding:6px 10px; font-size:.78em; }
+  .lang-switch button{ padding:4px 8px; font-size:.76em; }
+}
+@media (max-width:400px){
+  .topbar{ flex-wrap:wrap; gap:8px; }
+  .topbar .actions{ gap:6px; flex-wrap:wrap; }
+  .pill-btn{ padding:5px 8px; font-size:.74em; }
+}
+
+/* --- main wrap --- */
+@media (max-width:600px){
+  .wrap{ padding:12px 12px 100px; }
+  .card{ padding:16px 14px; margin-bottom:14px; }
+  .card.square-accent{ border-left-width:4px; }
+  h2{ font-size:1.35em; }
+  h3{ font-size:1.1em; }
+}
+
+/* --- hero / landing --- */
+@media (max-width:700px){
+  .hero{ padding:40px 16px 32px; }
+  .hero h1{ font-size:1.65em; }
+  .hero .sub{ font-size:.88em; letter-spacing:1.5px; }
+  .hero .blurb{ font-size:.93em; margin-bottom:1.6em; }
+  .hero .shield{ height:62px; }
+  .hero .crest-row .est{ display:none; }
+  .hero .crest-row .divider{ display:none; }
+  .cta-row button{ padding:12px 22px; font-size:.92em; }
+  .faculty-card{ padding:20px 16px; }
+  .trust-strip{ gap:22px; padding-bottom:32px; }
+}
+@media (max-width:400px){
+  .hero h1{ font-size:1.4em; }
+  .cta-row{ gap:10px; }
+  .cta-row button{ padding:11px 16px; font-size:.86em; }
+}
+
+/* --- lesson viewer --- */
+@media (max-width:600px){
+  .lesson-header{ padding:18px 16px; }
+  .lesson-header h2{ font-size:1.15em; }
+  .lesson-body{ padding:16px 14px; }
+  .lesson-body h3{ font-size:1em; margin-top:1.2em; }
+  .key-square{ padding:14px 15px; }
+  .bridge-box{ padding:11px 14px; font-size:.95em; }
+  .lesson-checklist li{ padding:8px 10px 8px 28px; font-size:.92em; }
+}
+
+/* --- week list --- */
+@media (max-width:600px){
+  .week-row{ padding:12px 12px; gap:10px; }
+  .week-row .info .t{ font-size:.9em; }
+  .week-row .info .u{ font-size:.74em; }
+  .week-badge{ width:34px; height:34px; font-size:.82em; border-radius:5px; }
+  .small-btn{ padding:6px 10px; font-size:.8em; }
+  .btn-primary{ padding:10px 18px; font-size:.9em; }
+}
+
+/* --- quiz --- */
+@media (max-width:600px){
+  .quiz-timer{ padding:10px 14px; font-size:.92em; }
+  .quiz-q{ padding:14px 12px; }
+  .quiz-opt{ padding:13px 12px; font-size:.92em; margin-bottom:9px; }
+}
+
+/* --- certificate on mobile — scale to fit --- */
+@media (max-width:700px){
+  .cert-frame{
+    border-width:7px; padding:22px;
+    transform-origin:top center;
+    /* js-free responsive: let aspect-ratio do the work, scale inner text */
+  }
+  .cert-frame .cert-inner{ padding:12px 14px; }
+  .cert-frame .cert-logo-row img{ height:38px; }
+  .cert-frame .cert-logo-row .brandname{ font-size:.9em; }
+  .cert-frame .kicker{ font-size:.68em; letter-spacing:2px; }
+  .cert-frame h1{ font-size:1.2em; }
+  .cert-frame .name{ font-size:1em; padding:0 10px 5px; }
+  .cert-frame .desc{ font-size:.75em; margin:.4em 0; }
+  .cert-frame .cert-verse{ font-size:.68em; margin:.5em 0; }
+  .cert-frame .sigrow .sig{ font-size:1.5em; }
+  .cert-frame .sigrow .sig-line{ width:110px; }
+  .cert-frame .sigrow .sig-label{ font-size:.68em; }
+  .cert-frame .sealbox{ width:46px; height:46px; font-size:.52em; }
+  .cert-frame .cert-logo-row{ gap:8px; margin-bottom:3px; }
+}
+
+/* --- community chat --- */
+@media (max-width:700px){
+  .chat-scroll{ height:calc(100svh - 390px); min-height:240px; }
+  .chat-shell{ border-radius:8px; }
+  .chat-header{ padding:11px 13px; }
+  .chat-header .ch-title{ font-size:.98em; }
+  .chat-header .ch-avatar{ width:36px; height:36px; font-size:1.1em; }
+  .bubble{ max-width:86%; }
+  .chat-composer{ padding:8px 10px; }
+  .composer-row textarea{ padding:8px 13px; font-size:.9em; }
+  .format-hint{ display:none; }  /* save space on mobile */
+  .emoji-picker{ width:240px; grid-template-columns:repeat(7,1fr); bottom:52px; }
+  .chat-search input{ font-size:.86em; }
+}
+@media (max-width:400px){
+  .bubble{ max-width:90%; }
+  .chat-vision{ font-size:.7em; padding:6px 12px; }
+}
+
+/* --- admin dashboard tables wrap on mobile --- */
+@media (max-width:700px){
+  #adminTabBody table{ display:block; overflow-x:auto; -webkit-overflow-scrolling:touch; white-space:nowrap; }
+  #adminTabBody select{ max-width:100px; font-size:.78em !important; }
+}
+
+/* --- mentor training week list on mobile --- */
+@media (max-width:500px){
+  .post-card{ padding:12px 12px; }
+  .post-meta{ font-size:.74em; }
+  .post-text{ font-size:.92em; }
+}
+
+/* --- forms and auth --- */
+@media (max-width:500px){
+  .form-card{ margin:16px auto; padding:0; }
+  .form-card h2{ font-size:1.3em; }
+}
+
+/* --- touch-friendly minimum tap targets for all interactive elements --- */
+@media (max-width:768px){
+  button:not(.emoji-opt):not(.b-act):not(.lang-switch button){
+    min-height:40px;
+  }
+  .react-tray button{ min-height:unset; }
+}
+
+/* --- grid already has 800px breakpoint — also fix on very small screens --- */
+@media (max-width:480px){
+  .grid.cols-2, .grid.cols-3{ grid-template-columns:1fr; gap:12px; }
+}
+
+/* --- disable hover effects on touch (avoids sticky hover states on iOS) --- */
+@media (hover:none){
+  .ql-btn:hover{ transform:none; }
+  .week-row:hover{ box-shadow:none; border-color:var(--line); }
+  .faculty-card:hover{ transform:none; box-shadow:none; }
+}
 </style>
 </head>
 <body>
@@ -2286,7 +2498,7 @@ function adminChangeRole(username){
 }
 function adminStudentsTable(students){
   const mentors = State.users.filter(u=>u.role==='mentor');
-  return `<table class="data-table"><thead><tr>
+  return `<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;"><table class="data-table"><thead><tr>
     <th>${t('fullName')}</th><th>${t('username')}</th><th>${t('overallProgress')}</th><th>${t('myMentor')}</th><th></th><th>${t('changeRoleAction')}</th><th></th></tr></thead><tbody>
     ${students.map(s=>`<tr><td>${s.fullName||''}</td><td>${s.username}</td><td>${overallPercent(s.username)}%</td><td>${s.mentor||'—'}</td>
       <td>
@@ -2298,10 +2510,10 @@ function adminStudentsTable(students){
       </td>
       <td>${roleChangePickerHtml(s.username, 'student')}</td>
       <td><button class="small-btn danger" onclick="adminDeleteUser('${s.username}')">${t('delete')}</button></td></tr>`).join('')}
-  </tbody></table>`;
+  </tbody></table></div>`;
 }
 function adminMentorsTable(mentors){
-  return `<table class="data-table"><thead><tr>
+  return `<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;"><table class="data-table"><thead><tr>
     <th>${t('fullName')}</th><th>${t('username')}</th><th>${t('myMentees')}</th><th>${t('changeRoleAction')}</th><th></th></tr></thead><tbody>
     ${mentors.map(m=>{
       const mentees = menteesFor(m.username);
@@ -2312,7 +2524,7 @@ function adminMentorsTable(mentors){
       <td>${roleChangePickerHtml(m.username, 'mentor')}</td>
       <td><button class="small-btn danger" onclick="adminDeleteUser('${m.username}')">${t('delete')}</button></td></tr>`;
     }).join('')}
-  </tbody></table>`;
+  </tbody></table></div>`;
 }
 function adminAssignMentor(studentUsername){
   const sel = document.getElementById('mentorPick_'+studentUsername);
