@@ -688,7 +688,7 @@ en: {
   regenQuiz:'Regenerate placeholder note', mentorPrivateArea:'Mentors Private Area', syncing:'Syncing…', synced:'Synced', offlineNote:'Working offline — will sync when connection is available.',
   mentorTraining:'Mentor Training', mentorTrainingDesc:'A four-week certified course for mentors — understanding biblical mentorship, servant leadership, character, and how to actually walk with your mentees.', mentorWeekLabel:'Mentor Week',
   mentorCertExam:'Mentor Certification Exam', mentorCertExamDesc:'Unlocked once all four mentor training weeks are completed and passed. Forty minutes, twenty questions, drawn from across the course.', mentorCertLocked:'Complete and pass all four mentor training weeks to unlock the Certification Exam.',
-  startMentorCertExam:'Start Certification Exam', certOfMentorship:'Certificate in Servant Leadership Mentoring', openMentorTraining:'Open Mentor Training', backToMentorTraining:'Back to Mentor Training',
+  startMentorCertExam:'Start Certification Exam', certOfMentorship:'Certificate in Servant Leadership Mentoring', certOfMentorWeek:'Certificate of Module Completion — Mentor Training', openMentorTraining:'Open Mentor Training', backToMentorTraining:'Back to Mentor Training',
   mentorForum:'Mentor Forum', slBox:'SL Box', askAdmin:'Ask Admin', play:'Play', lookingBack:'Looking Back',
   mentorForumDesc:'A shared space for mentors — post questions, wins, and things you want other mentors praying about. Everyone in the mentor circle can see and comment.',
   forumComposerPlaceholder:'Share something with the other mentors…', post:'Post', comment:'Comment', commentPlaceholder:'Write a comment…', noPostsYet:'No posts yet — be the first.',
@@ -760,7 +760,7 @@ fr: {
   regenQuiz:'Note de remplacement', mentorPrivateArea:'Espace Privé des Mentors', syncing:'Synchronisation…', synced:'Synchronisé', offlineNote:'Travail hors ligne — synchronisation dès que possible.',
   mentorTraining:'Formation des Mentors', mentorTrainingDesc:'Un cours certifié de quatre semaines pour les mentors — comprendre le mentorat biblique, le leadership serviteur, le caractère, et comment réellement marcher avec vos mentorés.', mentorWeekLabel:'Semaine Mentor',
   mentorCertExam:'Examen de Certification des Mentors', mentorCertExamDesc:'Débloqué une fois les quatre semaines de formation des mentors terminées et réussies. Quarante minutes, vingt questions, couvrant tout le cours.', mentorCertLocked:"Terminez et réussissez les quatre semaines de formation des mentors pour débloquer l'Examen de Certification.",
-  startMentorCertExam:"Commencer l'Examen de Certification", certOfMentorship:'Certificat en Mentorat de Leadership Serviteur', openMentorTraining:'Ouvrir la Formation des Mentors', backToMentorTraining:'Retour à la Formation des Mentors',
+  startMentorCertExam:"Commencer l'Examen de Certification", certOfMentorship:'Certificat en Mentorat de Leadership Serviteur', certOfMentorWeek:'Certificat de Réussite de Module — Formation des Mentors', openMentorTraining:'Ouvrir la Formation des Mentors', backToMentorTraining:'Retour à la Formation des Mentors',
   mentorForum:'Forum des Mentors', slBox:'Boîte SL', askAdmin:"Demander à l'Admin", play:'Jouer', lookingBack:'Regard en Arrière',
   mentorForumDesc:"Un espace partagé pour les mentors — publiez des questions, des victoires, et des choses pour lesquelles vous voulez que d'autres mentors prient. Tout le cercle des mentors peut voir et commenter.",
   forumComposerPlaceholder:'Partagez quelque chose avec les autres mentors…', post:'Publier', comment:'Commenter', commentPlaceholder:'Écrivez un commentaire…', noPostsYet:"Pas encore de publications — soyez le premier.",
@@ -887,6 +887,7 @@ function render(){
     case 'mentorQuizPage': wrap.innerHTML = quizView(mentorKey(State.viewParams.week)); startQuizTimer(); break;
     case 'mentorFinalExamPage': wrap.innerHTML = quizView('mentorFinal'); startQuizTimer(); break;
     case 'mentorCertificatePage': wrap.innerHTML = certificateView('mentor'); break;
+    case 'mentorWeekCertPage': wrap.innerHTML = certificateView('mentorWeek', State.viewParams.week); break;
     case 'lookingBackHome': wrap.innerHTML = lookingBackHomeView(); break;
     case 'lookingBackLessonPage': wrap.innerHTML = lookingBackLessonView(State.viewParams.week); break;
     case 'lookingBackQuizPage': wrap.innerHTML = quizView(lbKey(State.viewParams.week)); startQuizTimer(); break;
@@ -1453,9 +1454,14 @@ function mentorTrainingHomeView(){
         <div class="t">${t('mentorWeekLabel')} ${n} — ${lesson ? lesson.title : ''}</div>
         <div class="u">${t(status)}</div>
       </div>
-      ${unlocked
-        ? `<button class="small-btn" onclick="goto('mentorLessonPage',{week:${n}})">${t('startLesson')}</button>`
-        : `<span class="small-btn" style="opacity:.6;">${t('locked')}</span>`}
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        ${unlocked
+          ? `<button class="small-btn" onclick="goto('mentorLessonPage',{week:${n}})">${t('startLesson')}</button>`
+          : `<span class="small-btn" style="opacity:.6;">${t('locked')}</span>`}
+        ${status==='completed'
+          ? `<button class="small-btn" style="background:var(--gold);color:var(--navy);font-weight:700;" onclick="goto('mentorWeekCertPage',{week:${n}})">🎓 ${t('viewCert')}</button>`
+          : ''}
+      </div>
     </div>`;
   }
   weeksHtml += `</div>`;
@@ -1693,6 +1699,7 @@ function submitQuiz(auto){
     persist('progress', State.progress);
     apiPost('saveProgress', { username:State.user.username, week:wk, completed:passed, quizScore:scorePct, quizPassed:passed, attempts:(prev.attempts||0)+1 });
     if (passed && !isMentorWk && !isLbWk) apiPost('issueCert', { username:State.user.username, type:'week', week:wk });
+    if (passed && isMentorWk) apiPost('issueCert', { username:State.user.username, type:'mentorWeek', week:wk });
     renderQuizResult(correct,total,scorePct,passed,wk, auto);
   }
 }
@@ -1711,7 +1718,8 @@ function renderQuizResult(correct,total,scorePct,passed,kind,auto){
     } else if (kind === 'lookingBackFinal'){
       actionsHtml = `<button class="btn-primary" onclick="goto('lookingBackCertificatePage')">${t('viewCert')}</button>`;
     } else if (isMentorWk){
-      actionsHtml = `${mentorWkNum<MENTOR_WEEKS?`<button class="btn-primary" onclick="goto('mentorLessonPage',{week:${mentorWkNum+1}})">${t('continueNext')}</button>`:`<button class="btn-primary" onclick="goto('mentorTrainingHome')">${t('backToMentorTraining')}</button>`}`;
+      actionsHtml = `<button class="btn-primary" onclick="goto('mentorWeekCertPage',{week:${mentorWkNum}})">${t('viewCert')}</button>
+               ${mentorWkNum<MENTOR_WEEKS?`<button class="btn-primary" onclick="goto('mentorLessonPage',{week:${mentorWkNum+1}})">${t('continueNext')}</button>`:`<button class="btn-primary" onclick="goto('mentorTrainingHome')">${t('backToMentorTraining')}</button>`}`;
     } else if (isLbWk){
       actionsHtml = `${lbWkNum<LOOKINGBACK_WEEKS?`<button class="btn-primary" onclick="goto('lookingBackLessonPage',{week:${lbWkNum+1}})">${t('continueNext')}</button>`:`<button class="btn-primary" onclick="goto('lookingBackHome')">${t('lookingBack')}</button>`}`;
     } else {
@@ -1750,11 +1758,19 @@ function certificateView(type, week){
   const u = State.user;
   const isFinal = type === 'final';
   const isMentor = type === 'mentor';
+  const isMentorWeek = type === 'mentorWeek';
   const isLookingBack = type === 'lookingback';
-  const lesson = (!isFinal && !isMentor && !isLookingBack) ? lessonFor(week) : null;
+  const mentorLesson = isMentorWeek ? mentorLessonFor(week) : null;
+  const lesson = (!isFinal && !isMentor && !isMentorWeek && !isLookingBack) ? lessonFor(week) : null;
   const dateStr = new Date().toLocaleDateString(State.lang==='fr'?'fr-FR':'en-US', {year:'numeric',month:'long',day:'numeric'});
-  const certTitle = isFinal ? t('certOfServantLeadership') : (isMentor ? t('certOfMentorship') : (isLookingBack ? t('certOfLookingBack') : t('certOfCompletion')));
-  const kicker = (isFinal || isMentor || isLookingBack) ? 'TEAM21 ACADEMY' : ('TEAM21 ACADEMY · ' + t('weekLabel').toUpperCase() + ' ' + week);
+  const certTitle = isFinal ? t('certOfServantLeadership')
+    : isMentor ? t('certOfMentorship')
+    : isMentorWeek ? t('certOfMentorWeek')
+    : isLookingBack ? t('certOfLookingBack')
+    : t('certOfCompletion');
+  const kicker = (isFinal || isMentor || isLookingBack) ? 'TEAM21 ACADEMY'
+    : isMentorWeek ? ('TEAM21 ACADEMY · ' + t('mentorWeekLabel').toUpperCase() + ' ' + week)
+    : ('TEAM21 ACADEMY · ' + t('weekLabel').toUpperCase() + ' ' + week);
   const descText = isFinal
     ? (State.lang==='fr'
         ? "a achevé avec succès les vingt-sept semaines du parcours de formation et l'examen final de certification en"
@@ -1763,11 +1779,15 @@ function certificateView(type, week){
       ? (State.lang==='fr'
           ? "a achevé avec succès les quatre semaines de la formation des mentors et l'examen de certification en"
           : 'has successfully completed all four weeks of mentor training and the certification exam in')
-      : isLookingBack
+      : isMentorWeek
         ? (State.lang==='fr'
-            ? "a achevé avec succès les vingt-et-une leçons Regard en Arrière et l'examen de certification en"
-            : 'has successfully completed all twenty-one Looking Back lessons and the certification exam in')
-        : (State.lang==='fr' ? `a achevé avec succès la Semaine ${week}\u2009: « ${lesson?lesson.title:''} » du programme` : `has successfully completed Week ${week}: "${lesson?lesson.title:''}" of the program`);
+            ? `a achevé avec succès la Semaine Mentor ${week}\u2009 : « ${mentorLesson?mentorLesson.title:''} » du Programme de Formation des Mentors en`
+            : `has successfully completed Mentor Week ${week}: "${mentorLesson?mentorLesson.title:''}" of the Mentor Training Program in`)
+        : isLookingBack
+          ? (State.lang==='fr'
+              ? "a achevé avec succès les vingt-et-une leçons Regard en Arrière et l'examen de certification en"
+              : 'has successfully completed all twenty-one Looking Back lessons and the certification exam in')
+          : (State.lang==='fr' ? `a achevé avec succès la Semaine ${week}\u2009: « ${lesson?lesson.title:''} » du programme` : `has successfully completed Week ${week}: "${lesson?lesson.title:''}" of the program`);
   const subject = (State.lang==='fr' ? 'Leadership Serviteur' : 'Servant Leadership');
   const jesusQuote = State.lang==='fr'
     ? "« Il n’en sera pas ainsi parmi vous. » — Jésus, Matthieu 20.26"
@@ -1786,7 +1806,7 @@ function certificateView(type, week){
         <h1>${certTitle}</h1>
         <p class="desc">${State.lang==='fr'?'Ceci certifie que':'This certifies that'}</p>
         <div class="name">${u.fullName || u.username}</div>
-        <p class="desc">${descText}${(isFinal||isMentor||isLookingBack)?` <strong>${subject}</strong>.`:'.'}</p>
+        <p class="desc">${descText}${(isFinal||isMentor||isMentorWeek||isLookingBack)?` <strong>${subject}</strong>.`:'.'}</p>
         <p class="cert-verse">${jesusQuote}</p>
         <div class="sigrow single">
           <div>
@@ -1801,9 +1821,9 @@ function certificateView(type, week){
     </div>
   </div>
   <div class="cta-row">
-    <button class="btn-primary" onclick="downloadCertPdf('${isFinal?'final':(isMentor?'mentor':(isLookingBack?'lookingback':'week'+week))}')">${t('downloadPdf')}</button>
-    <button class="small-btn" onclick="saveCertToProfile('${isFinal?'final':(isMentor?'mentor':(isLookingBack?'lookingback':'week'))}', ${week||'null'})">${t('saveToProfile')}</button>
-    <button class="small-btn" onclick="goto('${isMentor?'mentorTrainingHome':(isLookingBack?'lookingBackHome':'dashboard')}')">${isMentor?t('backToMentorTraining'):(isLookingBack?t('lookingBack'):t('backToDash'))}</button>
+    <button class="btn-primary" onclick="downloadCertPdf('${isFinal?'final':(isMentor?'mentor':(isMentorWeek?'mentorweek'+week:(isLookingBack?'lookingback':'week'+week)))}')">${t('downloadPdf')}</button>
+    <button class="small-btn" onclick="saveCertToProfile('${isFinal?'final':(isMentor?'mentor':(isMentorWeek?'mentorweek':(isLookingBack?'lookingback':'week')))}', ${week||'null'})">${t('saveToProfile')}</button>
+    <button class="small-btn" onclick="goto('${(isMentor||isMentorWeek)?'mentorTrainingHome':(isLookingBack?'lookingBackHome':'dashboard')}')">${(isMentor||isMentorWeek)?t('backToMentorTraining'):(isLookingBack?t('lookingBack'):t('backToDash'))}</button>
   </div>
   <div id="certSaveNotice"></div>`;
 }
