@@ -347,62 +347,606 @@ label.field-label{font-size:.82em; font-weight:600; color:var(--navy); display:b
 .mini-comment-row{display:flex; gap:8px; margin-top:8px;}
 .mini-comment-row input{margin-bottom:0; font-size:.85em;}
 
-/* ---------- community chat (ForTe Fam style) ---------- */
-.chat-shell{background:var(--white); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow);}
-.chat-header{background:linear-gradient(90deg,var(--navy) 0%,var(--navy2) 100%); color:var(--white); padding:14px 18px; display:flex; align-items:center; gap:12px; border-bottom:3px solid var(--gold);}
-.chat-header .ch-avatar{width:42px; height:42px; border-radius:50%; background:rgba(242,183,5,.18); border:2px solid var(--gold); display:flex; align-items:center; justify-content:center; font-size:1.3em; flex-shrink:0;}
-.chat-header .ch-meta{flex:1; min-width:0;}
-.chat-header .ch-title{font-family:'Playfair Display',Georgia,serif; font-weight:700; font-size:1.12em; line-height:1.2;}
-.chat-header .ch-sub{font-size:.76em; color:#9FB4D6; letter-spacing:.3px;}
-.chat-vision{background:#0B1F3A; color:#CBDAF0; font-size:.76em; padding:8px 18px; border-bottom:1px solid rgba(242,183,5,.22); line-height:1.5;}
-.chat-vision em{color:var(--gold); font-style:normal; font-weight:700; letter-spacing:1px; margin-right:6px;}
-.chat-pinned{background:#FFF9E6; border-bottom:1px solid #F0E0A8; padding:8px 18px; font-size:.82em; color:#6B5700; display:flex; gap:8px; align-items:center;}
-.chat-scroll{height:460px; overflow-y:auto; padding:16px 18px; background:var(--offwhite);
-  background-image:radial-gradient(rgba(31,78,140,.05) 1px, transparent 1px); background-size:22px 22px;}
-.chat-daysep{text-align:center; margin:14px 0 10px;}
-.chat-daysep span{background:rgba(11,31,58,.08); color:var(--grey); font-size:.72em; padding:3px 12px; border-radius:12px; letter-spacing:.4px;}
-.msg-row{display:flex; gap:9px; margin-bottom:12px; align-items:flex-end;}
+/* ---------- Team21 Chat hub ---------- */
+.chat-shell{
+  background:var(--white);
+  border-radius:var(--radius);
+  overflow:hidden;
+  box-shadow:0 4px 28px rgba(11,31,58,.18);
+  display:flex; flex-direction:column;
+  height:calc(100svh - 120px);
+  min-height:420px;
+  position:relative;
+}
+.chat-header{
+  background:linear-gradient(135deg,#0B1F3A 0%,#1A3B6B 100%);
+  color:var(--white); padding:12px 16px;
+  display:flex; align-items:center; gap:11px;
+  border-bottom:2.5px solid var(--gold);
+  flex-shrink:0; z-index:10;
+}
+.ch-left{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
+.ch-avatar-wrap{position:relative;flex-shrink:0;}
+.ch-avatar{
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(242,183,5,.18);
+  border:2px solid var(--gold);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4em;
+}
+.ch-online-dot{
+  width:10px;height:10px;border-radius:50%;
+  background:#3ECA72;border:2px solid #0B1F3A;
+  position:absolute;bottom:1px;right:1px;
+}
+.ch-meta{flex:1;min-width:0;}
+.ch-title{
+  font-family:'Playfair Display',Georgia,serif;
+  font-weight:700;font-size:1.06em;line-height:1.2;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.ch-sub{font-size:.72em;color:#9FB4D6;letter-spacing:.3px;margin-top:1px;}
+.ch-avatars{display:flex;align-items:center;margin-top:3px;}
+.ch-av-pill{
+  width:20px;height:20px;border-radius:50%;
+  background:rgba(255,255,255,.18);
+  border:1.5px solid rgba(255,255,255,.4);
+  font-size:.65em;display:flex;align-items:center;justify-content:center;
+  margin-left:-5px;
+}
+.ch-av-pill:first-child{margin-left:0;}
+.ch-header-actions{display:flex;gap:4px;align-items:center;flex-shrink:0;}
+.ch-icon-btn{
+  background:rgba(255,255,255,.10);border:none;
+  color:var(--white);border-radius:8px;
+  width:34px;height:34px;font-size:1em;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.ch-icon-btn:hover{background:rgba(255,255,255,.2);}
+.chat-vision{
+  background:#061428;color:#8BA8CC;
+  font-size:.73em;padding:6px 16px;
+  border-bottom:1px solid rgba(242,183,5,.2);
+  line-height:1.5;display:flex;align-items:center;gap:6px;
+  flex-shrink:0;
+}
+.chat-vision em{
+  color:var(--gold);font-style:normal;
+  font-weight:700;letter-spacing:1px;flex-shrink:0;
+}
+.chat-pinned{
+  background:linear-gradient(90deg,#FFFBE8,#FFF9D9);
+  border-bottom:1px solid #EED96F;
+  padding:7px 16px;font-size:.8em;color:#6B5700;
+  display:flex;gap:8px;align-items:center;
+  flex-shrink:0;cursor:pointer;
+}
+.chat-pinned .pin-dismiss{
+  margin-left:auto;background:none;border:none;
+  color:#8B7700;font-size:1em;cursor:pointer;padding:0 2px;
+  flex-shrink:0;
+}
+.typing-bar{
+  background:var(--white);border-top:1px solid var(--line);
+  padding:4px 18px;font-size:.74em;color:var(--grey);
+  display:flex;align-items:center;gap:5px;flex-shrink:0;
+  min-height:24px;
+}
+.typing-dots span{
+  display:inline-block;width:5px;height:5px;border-radius:50%;
+  background:var(--grey);animation:tdot 1.2s infinite;
+}
+.typing-dots span:nth-child(2){animation-delay:.2s;}
+.typing-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes tdot{0%,80%,100%{transform:scale(.6);opacity:.4;}40%{transform:scale(1);opacity:1;}}
+.chat-search{
+  padding:7px 14px;border-bottom:1px solid var(--line);
+  background:var(--white);flex-shrink:0;
+}
+.chat-search input{
+  margin-bottom:0;font-size:.85em;border-radius:18px;
+  background:var(--offwhite);
+}
+.chat-scroll{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  padding:12px 14px 8px;
+  background:#e8edf5;
+  background-image:url("data:image/svg+xml,%3Csvg width='52' height='52' viewBox='0 0 52 52' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm28 28c-6.6 0-12 5.4-12 12s5.4 12 12 12 12-5.4 12-12-5.4-12-12-12z' fill='%230B1F3A' fill-opacity='0.04'/%3E%3C/svg%3E");
+  background-repeat:repeat;
+  scroll-behavior:smooth;
+  position:relative;
+}
+.chat-scroll::-webkit-scrollbar{width:4px;}
+.chat-scroll::-webkit-scrollbar-thumb{background:rgba(11,31,58,.2);border-radius:4px;}
+.chat-daysep{text-align:center;margin:10px 0 8px;position:relative;z-index:1;}
+.chat-daysep span{
+  background:rgba(11,31,58,.12);
+  color:#445;font-size:.7em;padding:3px 12px;
+  border-radius:12px;letter-spacing:.4px;
+  border:1px solid rgba(255,255,255,.5);
+}
+.msg-row{display:flex;gap:8px;margin-bottom:8px;align-items:flex-end;}
 .msg-row.mine{flex-direction:row-reverse;}
-.msg-avatar{width:32px; height:32px; border-radius:50%; background:var(--white); border:1.5px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:1em; flex-shrink:0;}
-.msg-row.mine .msg-avatar{background:var(--navy); border-color:var(--navy); color:var(--white);}
-.bubble{max-width:74%; background:var(--white); border:1px solid var(--line); border-radius:14px 14px 14px 4px; padding:9px 13px; position:relative; box-shadow:0 1px 2px rgba(11,31,58,.06);}
-.msg-row.mine .bubble{background:#E7F1DC; border-color:#CFE3BC; border-radius:14px 14px 4px 14px;}
-.bubble .b-author{font-size:.76em; font-weight:700; color:var(--blue); margin-bottom:2px;}
-.msg-row.mine .bubble .b-author{color:var(--success);}
-.bubble .b-text{font-size:.95em; line-height:1.5; color:var(--ink); word-wrap:break-word; white-space:pre-wrap;}
-.bubble .b-time{font-size:.68em; color:var(--grey); text-align:right; margin-top:3px;}
-.bubble .b-reply{border-left:3px solid var(--gold); background:rgba(242,183,5,.1); padding:4px 8px; border-radius:5px; margin-bottom:5px; font-size:.78em; color:var(--grey);}
-.bubble .b-reply strong{color:var(--navy); display:block; font-size:.95em;}
-.b-text code{background:rgba(11,31,58,.08); padding:1px 5px; border-radius:4px; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:.9em;}
-.b-text .mention{color:var(--blue); font-weight:700; background:rgba(31,78,140,.1); padding:0 3px; border-radius:3px;}
-.b-text .spoiler{background:var(--ink); color:transparent; border-radius:3px; cursor:pointer; padding:0 3px;}
-.b-text .spoiler.revealed{background:rgba(11,31,58,.08); color:var(--ink);}
-.b-actions{display:flex; gap:4px; margin-top:6px; flex-wrap:wrap;}
-.b-act{background:none; border:none; font-size:.72em; color:var(--grey); cursor:pointer; padding:2px 6px; border-radius:10px;}
-.b-act:hover{background:rgba(11,31,58,.07); color:var(--navy);}
-.b-reacts{display:flex; gap:4px; flex-wrap:wrap; margin-top:5px;}
-.b-react{background:var(--white); border:1px solid var(--line); border-radius:12px; padding:1px 8px; font-size:.78em; cursor:pointer;}
-.b-react.mine{background:#EEF4FC; border-color:var(--blue);}
-.react-tray{display:flex; gap:2px; background:var(--white); border:1px solid var(--line); border-radius:16px; padding:3px 5px; box-shadow:var(--shadow); margin-top:5px; width:fit-content;}
-.react-tray button{background:none; border:none; font-size:1.1em; cursor:pointer; padding:1px 3px; border-radius:50%;}
-.react-tray button:hover{background:var(--offwhite); transform:scale(1.2);}
-.chat-composer{border-top:1px solid var(--line); background:var(--white); padding:10px 14px;}
-.replying-bar{background:var(--offwhite); border-left:3px solid var(--gold); padding:5px 10px; border-radius:5px; font-size:.8em; margin-bottom:7px; display:flex; justify-content:space-between; align-items:center; gap:8px;}
-.composer-row{display:flex; gap:8px; align-items:flex-end;}
-.composer-row textarea{flex:1; margin-bottom:0; resize:none; border-radius:20px; padding:10px 15px; font-size:.95em; max-height:110px;}
-.composer-btn{width:40px; height:40px; border-radius:50%; border:none; background:var(--offwhite); font-size:1.15em; cursor:pointer; flex-shrink:0;}
-.composer-btn:hover{background:var(--line);}
-.composer-btn.send{background:var(--navy); color:var(--white);}
-.composer-btn.send:hover{background:var(--blue);}
-.format-hint{font-size:.7em; color:var(--grey); margin-top:6px; line-height:1.5;}
-.format-hint code{background:var(--offwhite); padding:0 4px; border-radius:3px;}
-.emoji-picker-row{position:relative;}
-.emoji-picker{position:absolute; bottom:48px; left:0; z-index:30; background:var(--white); border:1px solid var(--line); border-radius:10px; padding:9px; box-shadow:var(--shadow); display:grid; grid-template-columns:repeat(8,1fr); gap:2px; width:280px;}
-.emoji-opt{background:none; border:none; font-size:1.3em; padding:4px; border-radius:5px; cursor:pointer;}
-.emoji-opt:hover{background:var(--offwhite);}
-.chat-search{padding:9px 18px; border-bottom:1px solid var(--line); background:var(--white);}
-.chat-search input{margin-bottom:0; font-size:.86em; border-radius:18px;}
-.chat-empty{text-align:center; color:var(--grey); padding:50px 20px; font-size:.9em;}
+.msg-avatar{
+  width:30px;height:30px;border-radius:50%;
+  background:var(--white);border:1.5px solid rgba(11,31,58,.12);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.95em;flex-shrink:0;cursor:pointer;
+  box-shadow:0 1px 4px rgba(0,0,0,.1);
+}
+.msg-row.mine .msg-avatar{display:none;}
+.bubble-wrap{display:flex;flex-direction:column;max-width:74%;position:relative;}
+.msg-row.mine .bubble-wrap{align-items:flex-end;}
+.bubble{
+  background:#ffffff;
+  border-radius:0px 14px 14px 14px;
+  padding:8px 12px 6px;
+  position:relative;
+  box-shadow:0 1px 3px rgba(0,0,0,.12);
+  word-break:break-word;
+}
+.bubble::before{
+  content:'';position:absolute;left:-7px;bottom:8px;
+  border:7px solid transparent;
+  border-right-color:#ffffff;
+  border-left:0;
+}
+.msg-row.mine .bubble{
+  background:#D9FDD3;
+  border-radius:14px 0px 14px 14px;
+}
+.msg-row.mine .bubble::before{
+  left:auto;right:-7px;
+  border-right-color:transparent;
+  border-left:7px solid #D9FDD3;
+}
+.bubble .b-author{
+  font-size:.74em;font-weight:700;color:#1F7ACA;
+  margin-bottom:2px;
+}
+.msg-row.mine .bubble .b-author{display:none;}
+.bubble .b-text{
+  font-size:.93em;line-height:1.5;
+  color:#111;word-wrap:break-word;white-space:pre-wrap;
+}
+.bubble .b-footer{
+  display:flex;justify-content:flex-end;
+  align-items:center;gap:4px;margin-top:3px;
+}
+.bubble .b-time{font-size:.65em;color:#7A8A9A;}
+.msg-row.mine .b-time{color:#4FA86A;}
+.b-tick{font-size:.7em;color:#4FA86A;}
+.bubble .b-reply{
+  border-left:3px solid var(--gold);
+  background:rgba(11,31,58,.06);
+  padding:4px 8px;border-radius:0 5px 5px 0;
+  margin-bottom:5px;font-size:.77em;
+  cursor:pointer;
+}
+.bubble .b-reply strong{
+  color:var(--navy);display:block;
+  font-size:.95em;margin-bottom:1px;
+}
+.bubble .b-reply .b-rtext{
+  color:#555;overflow:hidden;
+  white-space:nowrap;text-overflow:ellipsis;
+  max-width:220px;
+}
+.b-reacts{
+  display:flex;gap:3px;flex-wrap:wrap;margin-top:4px;
+}
+.b-react{
+  background:rgba(255,255,255,.85);
+  border:1px solid rgba(11,31,58,.12);
+  border-radius:12px;padding:1px 7px;
+  font-size:.78em;cursor:pointer;
+  transition:transform .12s;
+}
+.b-react:hover{transform:scale(1.15);}
+.b-react.mine{
+  background:#E8F8E8;
+  border-color:#4FA86A;
+}
+.ctx-menu{
+  position:fixed;z-index:200;
+  background:#ffffff;
+  border:1px solid rgba(0,0,0,.1);
+  border-radius:12px;
+  box-shadow:0 8px 28px rgba(0,0,0,.22);
+  padding:5px 0;min-width:160px;
+  animation:ctxIn .1s ease;
+}
+.ctx-menu button{
+  display:block;width:100%;text-align:left;
+  background:none;border:none;
+  padding:9px 16px;font-size:.88em;
+  color:#222;cursor:pointer;line-height:1.3;
+}
+.ctx-menu button:hover{background:#f0f4f8;}
+.ctx-menu button.danger{color:#d93025;}
+.ctx-menu hr{border:none;border-top:1px solid #eee;margin:3px 0;}
+.quick-react-bar{
+  position:fixed;z-index:199;
+  background:#ffffff;
+  border:1px solid rgba(0,0,0,.1);
+  border-radius:30px;
+  box-shadow:0 4px 18px rgba(0,0,0,.2);
+  padding:4px 8px;
+  display:flex;gap:2px;
+  animation:ctxIn .1s ease;
+}
+.quick-react-bar button{
+  background:none;border:none;
+  font-size:1.3em;padding:2px 4px;
+  border-radius:50%;cursor:pointer;
+  transition:transform .12s;
+}
+.quick-react-bar button:hover{transform:scale(1.3);}
+@keyframes ctxIn{from{opacity:0;transform:scale(.9);}to{opacity:1;transform:scale(1);}}
+.chat-composer{
+  border-top:1px solid #d8dee6;
+  background:#f0f2f5;
+  padding:8px 10px;flex-shrink:0;
+}
+.replying-bar{
+  background:#ffffff;
+  border-left:3px solid var(--gold);
+  border-radius:0 6px 6px 0;
+  padding:5px 10px;font-size:.8em;
+  margin-bottom:6px;
+  display:flex;justify-content:space-between;
+  align-items:center;gap:8px;
+  box-shadow:0 1px 3px rgba(0,0,0,.07);
+}
+.replying-bar .rb-inner{flex:1;min-width:0;}
+.replying-bar .rb-name{font-weight:700;color:var(--navy);font-size:.85em;}
+.replying-bar .rb-text{
+  color:var(--grey);font-size:.82em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.replying-bar .b-act{
+  background:none;border:none;font-size:1.1em;
+  color:var(--grey);cursor:pointer;padding:2px 5px;
+  border-radius:50%;flex-shrink:0;
+}
+.composer-row{display:flex;gap:7px;align-items:flex-end;}
+.composer-attachments{display:flex;gap:2px;align-items:flex-end;}
+.composer-btn{
+  width:38px;height:38px;border-radius:50%;border:none;
+  background:none;font-size:1.2em;cursor:pointer;
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  color:#54656f;transition:background .15s;
+}
+.composer-btn:hover{background:rgba(11,31,58,.09);}
+.composer-btn.send{
+  background:var(--navy);color:#ffffff;
+  width:40px;height:40px;font-size:1.1em;
+}
+.composer-btn.send:hover{background:#1A3B6B;}
+.composer-btn.send.has-text{background:#25a244;}
+.composer-btn.voice{font-size:1.15em;}
+.composer-input-wrap{
+  flex:1;background:#ffffff;
+  border-radius:21px;
+  border:1px solid rgba(11,31,58,.12);
+  display:flex;align-items:flex-end;
+  padding:5px 12px;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.04);
+}
+.composer-input-wrap textarea{
+  flex:1;border:none;background:none;
+  resize:none;outline:none;
+  font-size:.95em;padding:4px 0;
+  max-height:110px;margin-bottom:0;
+  font-family:inherit;line-height:1.4;
+}
+.composer-input-wrap .emoji-inline-btn{
+  background:none;border:none;font-size:1.1em;
+  cursor:pointer;padding:0 4px;color:#54656f;
+  align-self:flex-end;margin-bottom:2px;
+}
+.emoji-panel{
+  position:absolute;bottom:100%;left:0;right:0;
+  background:#ffffff;
+  border:1px solid rgba(0,0,0,.1);
+  border-radius:12px 12px 0 0;
+  box-shadow:0 -4px 24px rgba(0,0,0,.15);
+  z-index:50;max-height:260px;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.emoji-tabs{
+  display:flex;border-bottom:1px solid var(--line);
+  background:#f8f9fa;flex-shrink:0;
+}
+.emoji-tab{
+  flex:1;background:none;border:none;
+  padding:8px 4px;font-size:1.2em;cursor:pointer;
+  border-bottom:2.5px solid transparent;
+  transition:border-color .15s;
+}
+.emoji-tab.active{border-bottom-color:var(--navy);}
+.emoji-grid{
+  display:grid;grid-template-columns:repeat(8,1fr);
+  gap:0;overflow-y:auto;padding:4px;flex:1;
+}
+.emoji-grid button{
+  background:none;border:none;
+  font-size:1.25em;padding:5px 2px;
+  border-radius:5px;cursor:pointer;
+  text-align:center;
+}
+.emoji-grid button:hover{background:#f0f4f8;transform:scale(1.2);}
+.new-msg-pill{
+  position:absolute;bottom:12px;left:50%;transform:translateX(-50%);
+  background:var(--navy);color:#ffffff;
+  border-radius:20px;padding:5px 14px;
+  font-size:.79em;font-weight:600;
+  cursor:pointer;z-index:20;
+  box-shadow:0 2px 12px rgba(11,31,58,.35);
+  display:none;
+  white-space:nowrap;
+  animation:pillIn .25s ease;
+}
+@keyframes pillIn{from{opacity:0;transform:translateX(-50%) scale(.8);}to{opacity:1;transform:translateX(-50%) scale(1);}}
+.format-hint{font-size:.68em;color:var(--grey);margin-top:5px;line-height:1.5;padding:0 4px;}
+.format-hint code{background:var(--offwhite);padding:0 3px;border-radius:3px;}
+.chat-empty{text-align:center;color:var(--grey);padding:50px 20px;font-size:.9em;}
+.b-text code{
+  background:rgba(11,31,58,.08);padding:1px 5px;
+  border-radius:4px;
+  font-family:ui-monospace,Menlo,Consolas,monospace;
+  font-size:.88em;
+}
+.b-text .mention{
+  color:#1F7ACA;font-weight:700;
+  background:rgba(31,78,140,.1);
+  padding:0 3px;border-radius:3px;
+}
+.b-text .spoiler{
+  background:#222;color:transparent;
+  border-radius:3px;cursor:pointer;padding:0 3px;
+}
+.b-text .spoiler.revealed{background:rgba(11,31,58,.08);color:var(--ink);}
+/* legacy compat */
+.react-tray{display:none;}
+.b-actions{display:none;}
+.emoji-picker{display:none;}
+
+/* ---------- Team21 Chat hub: tab bar ---------- */
+.hub-tabs{
+  display:flex;background:#0B1F3A;flex-shrink:0;
+  border-bottom:1px solid rgba(242,183,5,.25);
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+}
+.hub-tabs::-webkit-scrollbar{display:none;}
+.hub-tab{
+  flex:1 0 auto;background:none;border:none;
+  color:#8BA8CC;font-size:.78em;font-weight:600;
+  padding:9px 13px 7px;cursor:pointer;
+  border-bottom:2.5px solid transparent;
+  white-space:nowrap;letter-spacing:.2px;
+  display:flex;align-items:center;gap:5px;
+  justify-content:center;transition:color .15s;
+}
+.hub-tab:hover{color:#CBDAF0;}
+.hub-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.hub-tab .hub-count{
+  background:rgba(242,183,5,.2);color:var(--gold);
+  border-radius:9px;padding:0 5px;font-size:.85em;
+  min-width:16px;
+}
+/* ---------- shared panel shell ---------- */
+.hub-panel{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  background:var(--offwhite);padding:14px;
+}
+.hub-panel::-webkit-scrollbar{width:4px;}
+.hub-panel::-webkit-scrollbar-thumb{background:rgba(11,31,58,.2);border-radius:4px;}
+.hub-intro{
+  background:var(--white);border-left:3px solid var(--gold);
+  border-radius:0 8px 8px 0;padding:9px 13px;margin-bottom:12px;
+  box-shadow:0 1px 3px rgba(11,31,58,.07);
+}
+.hub-intro h4{
+  margin:0 0 3px;font-family:'Playfair Display',Georgia,serif;
+  font-size:1em;color:var(--navy);
+}
+.hub-intro p{margin:0;font-size:.79em;color:var(--grey);line-height:1.5;}
+.hub-composer{
+  background:var(--white);border:1px solid var(--line);
+  border-radius:10px;padding:11px;margin-bottom:13px;
+  box-shadow:0 1px 4px rgba(11,31,58,.07);
+}
+.hub-composer input,.hub-composer textarea,.hub-composer select{
+  width:100%;margin-bottom:7px;font-size:.88em;
+  border-radius:7px;padding:8px 10px;
+  border:1px solid var(--line);font-family:inherit;
+}
+.hub-composer textarea{resize:vertical;min-height:54px;}
+.hub-composer-row{display:flex;gap:7px;align-items:center;}
+.hub-composer-row select{flex:1;margin-bottom:0;}
+.hub-composer-row input{flex:1;margin-bottom:0;}
+.hub-post-btn{
+  background:var(--navy);color:#fff;border:none;
+  border-radius:20px;padding:8px 18px;font-size:.85em;
+  font-weight:700;cursor:pointer;flex-shrink:0;
+}
+.hub-post-btn:hover{background:#1A3B6B;}
+.hub-toolbar{
+  display:flex;gap:6px;margin-bottom:11px;
+  flex-wrap:wrap;align-items:center;
+}
+.hub-chip{
+  background:var(--white);border:1px solid var(--line);
+  border-radius:16px;padding:4px 12px;font-size:.78em;
+  cursor:pointer;color:var(--grey);
+}
+.hub-chip.active{
+  background:var(--navy);color:#fff;border-color:var(--navy);
+  font-weight:600;
+}
+.hub-empty{
+  text-align:center;color:var(--grey);
+  padding:40px 20px;font-size:.87em;line-height:1.6;
+}
+/* ---------- idea cards ---------- */
+.idea-card{
+  background:var(--white);border:1px solid var(--line);
+  border-radius:10px;padding:0;margin-bottom:10px;
+  display:flex;overflow:hidden;
+  box-shadow:0 1px 4px rgba(11,31,58,.07);
+  transition:box-shadow .15s;
+}
+.idea-card:hover{box-shadow:0 3px 12px rgba(11,31,58,.12);}
+.idea-vote{
+  background:var(--offwhite);border-right:1px solid var(--line);
+  padding:11px 9px;display:flex;flex-direction:column;
+  align-items:center;gap:1px;flex-shrink:0;min-width:56px;
+  cursor:pointer;transition:background .15s;
+}
+.idea-vote:hover{background:#EEF4FC;}
+.idea-vote.voted{background:#FFF9E6;border-right-color:#EED96F;}
+.idea-vote .iv-arrow{font-size:1.1em;line-height:1;color:var(--grey);}
+.idea-vote.voted .iv-arrow{color:#C79400;}
+.idea-vote .iv-num{
+  font-size:1.15em;font-weight:800;color:var(--navy);
+  font-family:'Playfair Display',Georgia,serif;line-height:1.1;
+}
+.idea-vote .iv-lbl{font-size:.58em;color:var(--grey);letter-spacing:.3px;text-transform:uppercase;}
+.idea-body{flex:1;padding:11px 13px;min-width:0;}
+.idea-body .ib-top{
+  display:flex;align-items:center;gap:7px;
+  margin-bottom:4px;flex-wrap:wrap;
+}
+.idea-cat{
+  background:rgba(31,78,140,.1);color:#1F4E8C;
+  border-radius:10px;padding:1px 8px;font-size:.68em;
+  font-weight:700;letter-spacing:.3px;text-transform:uppercase;
+}
+.idea-body h5{
+  margin:0 0 4px;font-size:.98em;color:var(--navy);
+  font-weight:700;line-height:1.35;
+}
+.idea-body .ib-text{
+  font-size:.85em;color:#444;line-height:1.55;
+  margin-bottom:6px;white-space:pre-wrap;word-break:break-word;
+}
+.idea-body .ib-meta{
+  font-size:.72em;color:var(--grey);
+  display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+}
+.idea-body .ib-meta strong{color:var(--navy);}
+.hub-del{
+  background:none;border:none;color:#C04A3A;
+  font-size:.75em;cursor:pointer;padding:1px 4px;
+  border-radius:4px;margin-left:auto;
+}
+.hub-del:hover{background:rgba(192,74,58,.1);}
+/* ---------- goal cards ---------- */
+.goals-stats{
+  display:flex;gap:9px;margin-bottom:12px;
+}
+.goals-stat{
+  flex:1;background:var(--white);border:1px solid var(--line);
+  border-radius:9px;padding:9px;text-align:center;
+  box-shadow:0 1px 3px rgba(11,31,58,.06);
+}
+.goals-stat .gs-num{
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:1.5em;font-weight:800;color:var(--navy);line-height:1.1;
+}
+.goals-stat.done .gs-num{color:#2F8A4F;}
+.goals-stat .gs-lbl{font-size:.68em;color:var(--grey);text-transform:uppercase;letter-spacing:.4px;}
+.goal-card{
+  background:var(--white);border:1px solid var(--line);
+  border-left:4px solid var(--gold);
+  border-radius:0 9px 9px 0;padding:11px 13px;margin-bottom:9px;
+  box-shadow:0 1px 4px rgba(11,31,58,.07);
+}
+.goal-card.done{
+  border-left-color:#2F8A4F;background:#F7FCF8;
+}
+.goal-card.done .gc-text{text-decoration:line-through;color:var(--grey);}
+.goal-card .gc-top{
+  display:flex;align-items:flex-start;gap:9px;
+}
+.goal-check{
+  width:22px;height:22px;border-radius:50%;
+  border:2px solid var(--line);background:var(--white);
+  cursor:pointer;flex-shrink:0;margin-top:1px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.75em;color:transparent;transition:.15s;
+}
+.goal-check:hover{border-color:var(--gold);}
+.goal-card.done .goal-check{
+  background:#2F8A4F;border-color:#2F8A4F;color:#fff;
+}
+.goal-card .gc-main{flex:1;min-width:0;}
+.goal-card .gc-text{
+  font-size:.92em;color:var(--ink);line-height:1.5;
+  font-weight:600;word-break:break-word;white-space:pre-wrap;
+}
+.goal-card .gc-meta{
+  font-size:.72em;color:var(--grey);margin-top:4px;
+  display:flex;gap:9px;align-items:center;flex-wrap:wrap;
+}
+.goal-card .gc-meta strong{color:var(--navy);}
+.goal-badge{
+  border-radius:10px;padding:1px 8px;font-size:.92em;
+  font-weight:700;letter-spacing:.2px;
+}
+.goal-badge.open{background:rgba(242,183,5,.2);color:#8B6F00;}
+.goal-badge.done{background:rgba(47,138,79,.15);color:#2F8A4F;}
+.goal-badge.late{background:rgba(192,74,58,.13);color:#C04A3A;}
+.cheer-btn{
+  background:var(--white);border:1px solid var(--line);
+  border-radius:14px;padding:2px 9px;font-size:.92em;
+  cursor:pointer;transition:transform .12s;
+}
+.cheer-btn:hover{transform:scale(1.1);}
+.cheer-btn.mine{background:#FFF9E6;border-color:#EED96F;}
+/* ---------- link cards ---------- */
+.link-card{
+  background:var(--white);border:1px solid var(--line);
+  border-radius:10px;padding:11px 13px;margin-bottom:9px;
+  box-shadow:0 1px 4px rgba(11,31,58,.07);
+  transition:box-shadow .15s;
+}
+.link-card:hover{box-shadow:0 3px 12px rgba(11,31,58,.12);}
+.link-card .lc-top{
+  display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap;
+}
+.link-kind{
+  background:rgba(242,183,5,.18);color:#8B6F00;
+  border-radius:10px;padding:1px 8px;font-size:.68em;
+  font-weight:700;letter-spacing:.3px;text-transform:uppercase;
+}
+.link-card h5{
+  margin:0 0 4px;font-size:.95em;color:var(--navy);
+  font-weight:700;line-height:1.4;word-break:break-word;
+}
+.link-card .lc-url{
+  font-size:.75em;color:#1F4E8C;margin-bottom:7px;
+  word-break:break-all;display:block;text-decoration:none;
+}
+.link-card .lc-url:hover{text-decoration:underline;}
+.link-card .lc-actions{
+  display:flex;gap:7px;align-items:center;flex-wrap:wrap;
+  font-size:.72em;color:var(--grey);
+}
+.link-open-btn{
+  background:var(--navy);color:#fff;text-decoration:none;
+  border-radius:14px;padding:3px 12px;font-size:.95em;
+  font-weight:600;display:inline-block;
+}
+.link-open-btn:hover{background:#1A3B6B;}
+@media (max-width:700px){
+  .hub-tab{font-size:.72em;padding:8px 10px 6px;}
+  .hub-panel{padding:11px;}
+  .idea-vote{min-width:48px;padding:9px 7px;}
+  .goals-stats{gap:7px;}
+}
 
 /* ---------- play / games ---------- */
 .game-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
@@ -561,23 +1105,21 @@ textarea{min-height:80px; resize:vertical;}
   .cert-frame .cert-logo-row{ gap:8px; margin-bottom:3px; }
 }
 
-/* --- community chat --- */
+/* --- community chat responsive --- */
 @media (max-width:700px){
-  .chat-scroll{ height:calc(100svh - 390px); min-height:240px; }
-  .chat-shell{ border-radius:8px; }
-  .chat-header{ padding:11px 13px; }
-  .chat-header .ch-title{ font-size:.98em; }
-  .chat-header .ch-avatar{ width:36px; height:36px; font-size:1.1em; }
-  .bubble{ max-width:86%; }
-  .chat-composer{ padding:8px 10px; }
-  .composer-row textarea{ padding:8px 13px; font-size:.9em; }
-  .format-hint{ display:none; }  /* save space on mobile */
-  .emoji-picker{ width:240px; grid-template-columns:repeat(7,1fr); bottom:52px; }
-  .chat-search input{ font-size:.86em; }
+  .chat-shell{ border-radius:8px; height:calc(100svh - 110px); }
+  .bubble-wrap{ max-width:88%; }
+  .chat-header{ padding:10px 12px; }
+  .ch-avatar{ width:38px; height:38px; font-size:1.2em; }
+  .chat-composer{ padding:6px 8px; }
+  .format-hint{ display:none; }
+  .emoji-panel{ border-radius:0; }
+  .emoji-grid{ grid-template-columns:repeat(7,1fr); }
+  .chat-search input{ font-size:.84em; }
 }
 @media (max-width:400px){
-  .bubble{ max-width:90%; }
-  .chat-vision{ font-size:.7em; padding:6px 12px; }
+  .bubble-wrap{ max-width:93%; }
+  .chat-vision{ font-size:.68em; padding:5px 10px; }
 }
 
 /* --- admin dashboard tables wrap on mobile --- */
@@ -709,6 +1251,25 @@ en: {
   community:'Community', communityDesc:'One open space for every student and mentor — share, encourage, celebrate. React with emojis, just like WhatsApp.',
   communityPlaceholder:"What's on your mind?", emoji:'Emoji',
   membersLabel:'members', everywhereWeAre:'everywhere we are', missionLabel:'MISSION',
+  chatHubName:'Team21 Chat', newMessagesPill:'New messages',
+  tabChat:'Chat', tabIdeas:'Ideas Market', tabGoals:'Goals Journal', tabLinks:'Fun Links',
+  ideasMarketTitle:'Ideas Market', ideasMarketDesc:'Pitch an idea. The community votes it up. Best ideas rise.',
+  newIdea:'Share an idea', ideaTitlePh:'Your idea in one line…', ideaBodyPh:'Why does it matter? What would it take?',
+  ideaCategory:'Category', postIdea:'Post idea', upvote:'Upvote', upvotes:'upvotes',
+  sortTop:'Top voted', sortNew:'Newest', noIdeasYet:'No ideas yet — be the first to pitch one.',
+  catMinistry:'Ministry', catBusiness:'Business', catCommunity:'Community', catTraining:'Training', catTech:'Tech', catOther:'Other',
+  goalsJournalTitle:'Goals Journal', goalsJournalDesc:'Write your goal down. Share it. Let Team21 hold you to it.',
+  newGoal:'Add a goal', goalTextPh:'What will you accomplish?', goalTargetDate:'Target date',
+  postGoal:'Post goal', markDone:'Mark done', reopenGoal:'Reopen', goalDone:'Achieved', goalOpen:'In progress',
+  cheerOn:'Cheer on', filterAll:'All', filterMine:'Mine', filterOpen:'In progress', filterDone:'Achieved',
+  noGoalsYet:'No goals posted yet — write the first one down.',
+  goalsStatOpen:'in progress', goalsStatDone:'achieved',
+  funLinksTitle:'Fun Links', funLinksDesc:'Worth-your-time finds from the Team21 community — videos, articles, tools, music.',
+  newLink:'Share a link', linkUrlPh:'https://…', linkTitlePh:'What is it? Why should we click?',
+  postLink:'Share it', openLink:'Open', linkCategory:'Kind',
+  kindVideo:'Video', kindArticle:'Article', kindTool:'Tool', kindMusic:'Music', kindBook:'Book', kindOther:'Other',
+  noLinksYet:'No links shared yet — drop the first good find.',
+  deleteConfirm:'Delete this?', byLabel:'by',
   communityVision:'Lead like Jesus · Integrity · Compassion · Complete commitment to Christ',
   searchMessages:'Search messages', noResults:'No messages match that search.',
   react:'React', reply:'Reply', pin:'Pin', unpin:'Unpin',
@@ -781,6 +1342,25 @@ fr: {
   community:'Communauté', communityDesc:"Un espace ouvert pour tous les étudiants et mentors — partagez, encouragez, célébrez. Réagissez avec des émojis, comme sur WhatsApp.",
   communityPlaceholder:"Qu'avez-vous en tête ?", emoji:'Émoji',
   membersLabel:'membres', everywhereWeAre:'où que nous soyons', missionLabel:'MISSION',
+  chatHubName:'Team21 Chat', newMessagesPill:'Nouveaux messages',
+  tabChat:'Discussion', tabIdeas:'Marché des idées', tabGoals:'Journal des objectifs', tabLinks:'Liens sympas',
+  ideasMarketTitle:'Marché des idées', ideasMarketDesc:'Proposez une idée. La communauté vote. Les meilleures montent.',
+  newIdea:'Proposer une idée', ideaTitlePh:'Votre idée en une ligne…', ideaBodyPh:'Pourquoi est-ce important ? Que faudrait-il ?',
+  ideaCategory:'Catégorie', postIdea:'Publier l\'idée', upvote:'Voter', upvotes:'votes',
+  sortTop:'Les plus votées', sortNew:'Les plus récentes', noIdeasYet:'Aucune idée pour le moment — soyez le premier.',
+  catMinistry:'Ministère', catBusiness:'Entreprise', catCommunity:'Communauté', catTraining:'Formation', catTech:'Technologie', catOther:'Autre',
+  goalsJournalTitle:'Journal des objectifs', goalsJournalDesc:'Écrivez votre objectif. Partagez-le. Laissez Team21 vous encourager.',
+  newGoal:'Ajouter un objectif', goalTextPh:'Qu\'allez-vous accomplir ?', goalTargetDate:'Date cible',
+  postGoal:'Publier l\'objectif', markDone:'Marquer atteint', reopenGoal:'Réouvrir', goalDone:'Atteint', goalOpen:'En cours',
+  cheerOn:'Encourager', filterAll:'Tous', filterMine:'Les miens', filterOpen:'En cours', filterDone:'Atteints',
+  noGoalsYet:'Aucun objectif publié — écrivez le premier.',
+  goalsStatOpen:'en cours', goalsStatDone:'atteints',
+  funLinksTitle:'Liens sympas', funLinksDesc:'Les trouvailles de la communauté Team21 — vidéos, articles, outils, musique.',
+  newLink:'Partager un lien', linkUrlPh:'https://…', linkTitlePh:'C\'est quoi ? Pourquoi cliquer ?',
+  postLink:'Partager', openLink:'Ouvrir', linkCategory:'Type',
+  kindVideo:'Vidéo', kindArticle:'Article', kindTool:'Outil', kindMusic:'Musique', kindBook:'Livre', kindOther:'Autre',
+  noLinksYet:'Aucun lien partagé — proposez la première trouvaille.',
+  deleteConfirm:'Supprimer ceci ?', byLabel:'par',
   communityVision:"Diriger comme Jésus · Intégrité · Compassion · Engagement total envers Christ",
   searchMessages:'Rechercher des messages', noResults:'Aucun message ne correspond à cette recherche.',
   react:'Réagir', reply:'Répondre', pin:'Épingler', unpin:'Désépingler',
@@ -825,6 +1405,9 @@ const State = {
   communityPosts: JSON.parse(localStorage.getItem('t21_communityposts') || '[]'),
   communityReplyTo: null,
   communitySearch: '',
+  communityTab: 'chat',
+  ideaSort: 'top',
+  goalFilter: 'all',
   quizRuntime: null, // { week|final, questions, idx, answers, endsAt, timerHandle }
 };
 function persist(key, obj){ localStorage.setItem('t21_'+key, JSON.stringify(obj)); }
@@ -2034,7 +2617,7 @@ function prayForSlboxPost(postId){
   goto('slbox');
 }
 
-/* ================= COMMUNITY (ForTe Fam-style chat for everyone) ================= */
+/* ================= TEAM21 CHAT HUB (chat / ideas / goals / links) ================= */
 const QUICK_EMOJIS = ['👍','❤️','😂','🙏','😮','😢','🎉','🔥'];
 const EMOJI_PICKER_SET = ['😀','😁','😂','🤣','😊','😇','🙂','😉','😍','😘','🤩','🥳','😎','🤔','😴','😢','😭','😮','😱','👍','👏','🙌','🙏','💪','❤️','🔥','🎉','✨','💯','👑','🕊️','📖'];
 function avatarFor(username){
@@ -2065,12 +2648,130 @@ function dayLabelFor(ts){
   if (same(d,yest)) return State.lang==='fr' ? 'Hier' : 'Yesterday';
   return d.toLocaleDateString(State.lang==='fr'?'fr-FR':'en-US', {weekday:'long', day:'numeric', month:'long'});
 }
+/* ======== TEAM21 CHAT -- full implementation ======== */
+
+const EMOJI_TABS_DATA = {
+  smileys: ['😀','😁','😂','🤣','😊','😇','🙂','😉','😍','😘','🤩','🥳','😎','🤔','😴','😢','😭','😮','😱','🥹','😤','😠','🤬','🤯','😖','😵','😳','😰','😨','😂','😬','🤗'],
+  gestures: ['👍','👎','👏','🙌','🙏','💪','🤝','🤞','✌️','🤟','🤘','👌','👍','👐','👀','👂','🤚','👋','🤛','👁️','🤦'],
+  symbols: ['❤️','🔥','🎉','✨','💯','👑','🕊️','📖','🌿','🌟','🌻','🌍','✝️','🙌','🌈','🎯','💡','🔑','🏆','🎓','🎤','📣','💬','☮️'],
+  stickers: ['🌼','🦁','🦋','🏀','🐣','🐦','🦅','🐬','🐧','🌯','🌸','🌺','🍀','🌴','🌵','🌾','🍇','🍓','🍕','🎂','🍿','🎮','🏆','📱']
+};
+const EMOJI_TAB_ICONS = {smileys:'😊',gestures:'👍',symbols:'❤️',stickers:'🌼'};
+let _emojiTab = 'smileys';
+let _pinnedDismissed = false;
+let _ctxMenu = null;
+let _quickReactBar = null;
+
+function getUserAvatar(username){
+  try {
+    const stored = JSON.parse(localStorage.getItem('forte_avatar_' + username));
+    if (stored) return stored;
+  } catch(e){}
+  return avatarFor(username);
+}
+function setUserAvatar(emoji){
+  try { localStorage.setItem('forte_avatar_' + State.user.username, JSON.stringify(emoji)); } catch(e){}
+  rerenderCommunity();
+}
+function onlineCount(){
+  return Math.max(1, Math.round(((State.users||[]).length) * 0.18) || 3);
+}
+
+/* ---- kind markers: stored as a text prefix so the GAS sheet needs no change ---- */
+const KIND_IDEA = '::idea::', KIND_GOAL = '::goal::', KIND_LINK = '::link::';
+function postKind(p){
+  const tx = p.text || '';
+  if (tx.indexOf(KIND_IDEA)===0) return 'idea';
+  if (tx.indexOf(KIND_GOAL)===0) return 'goal';
+  if (tx.indexOf(KIND_LINK)===0) return 'link';
+  return 'chat';
+}
+function parseKindPost(p){
+  const parts = (p.text||'').split('::', 3);
+  const rest = (p.text||'').split('::').slice(3).join('::');
+  const field = parts[2] || '';
+  const nl = rest.indexOf('\n');
+  return {
+    field: field,
+    head: nl === -1 ? rest : rest.slice(0, nl),
+    body: nl === -1 ? ''   : rest.slice(nl+1)
+  };
+}
+function postsOfKind(k){
+  return State.communityPosts.filter(p=>postKind(p)===k);
+}
+function reactionCount(p, emoji){
+  return ((p.reactions||{})[emoji]||[]).length;
+}
+function iReacted(p, emoji){
+  return (((p.reactions||{})[emoji])||[]).includes(State.user.username);
+}
+
 function communityView(){
   const me = State.user.username;
+  const tab = State.communityTab || 'chat';
+  const total = (State.users||[]).length;
+  const onl = onlineCount();
+
+  const recentUsers = [...new Set(postsOfKind('chat').slice(-30).map(p=>p.from))].slice(0,5);
+  const avRow = recentUsers.map(u=>`<div class="ch-av-pill" title="${escapeHtml(u)}">${getUserAvatar(u)}</div>`).join('');
+
+  const nChat  = postsOfKind('chat').length;
+  const nIdeas = postsOfKind('idea').length;
+  const nGoals = postsOfKind('goal').length;
+  const nLinks = postsOfKind('link').length;
+
+  const tabs = [
+    ['chat',  '\u{1F4AC}', t('tabChat'),  nChat],
+    ['ideas', '\u{1F4A1}', t('tabIdeas'), nIdeas],
+    ['goals', '\u{1F3AF}', t('tabGoals'), nGoals],
+    ['links', '\u{1F517}', t('tabLinks'), nLinks]
+  ].map(([k,ic,lbl,n])=>`<button class="hub-tab ${tab===k?'active':''}" onclick="switchHubTab('${k}')">
+      <span>${ic}</span><span>${lbl}</span>${n?`<span class="hub-count">${n}</span>`:''}
+    </button>`).join('');
+
+  let panel = '';
+  if (tab === 'chat')       panel = chatPanelHtml(me);
+  else if (tab === 'ideas') panel = ideasMarketPanel(me);
+  else if (tab === 'goals') panel = goalsJournalPanel(me);
+  else                      panel = funLinksPanel(me);
+
+  return `
+  <div class="chat-shell" id="chatShell">
+    <div class="chat-header">
+      <div class="ch-left">
+        <div class="ch-avatar-wrap">
+          <div class="ch-avatar">&#128106;</div>
+          <div class="ch-online-dot" title="${onl} online"></div>
+        </div>
+        <div class="ch-meta">
+          <div class="ch-title">${t('chatHubName')}</div>
+          <div class="ch-sub">${total} ${t('membersLabel')} &middot; ${onl} online</div>
+          <div class="ch-avatars">${avRow}</div>
+        </div>
+      </div>
+      <div class="ch-header-actions">
+        <button class="ch-icon-btn" title="Set your avatar" onclick="promptSetAvatar()">&#128100;</button>
+      </div>
+    </div>
+    <div class="chat-vision"><em>${t('missionLabel')}</em>${t('communityVision')}</div>
+    <div class="hub-tabs">${tabs}</div>
+    ${panel}
+  </div>
+  <button class="small-btn" style="margin-top:14px;" onclick="goto('dashboard')">${t('backToDash')}</button>`;
+}
+
+function switchHubTab(k){
+  State.communityTab = k;
+  rerenderCommunity();
+}
+
+/* ================= TAB 1: CHAT ================= */
+function chatPanelHtml(me){
   const q = (State.communitySearch||'').toLowerCase();
-  let posts = State.communityPosts.slice().sort((a,b)=>a.timestamp-b.timestamp);
+  let posts = postsOfKind('chat').sort((a,b)=>a.timestamp-b.timestamp);
   if (q) posts = posts.filter(p => (p.text||'').toLowerCase().includes(q) || (p.fromName||'').toLowerCase().includes(q));
-  const pinned = State.communityPosts.filter(p=>p.pinned);
+  const pinned = postsOfKind('chat').filter(p=>p.pinned);
 
   let body = '';
   let lastDay = null;
@@ -2084,96 +2785,507 @@ function communityView(){
   const replyTo = State.communityReplyTo ? State.communityPosts.find(p=>p.id===State.communityReplyTo) : null;
 
   return `
-  <div class="chat-shell">
-    <div class="chat-header">
-      <div class="ch-avatar">👨‍👩‍👧</div>
-      <div class="ch-meta">
-        <div class="ch-title">${t('community')}</div>
-        <div class="ch-sub">${State.users.length} ${t('membersLabel')} · ${t('everywhereWeAre')}</div>
-      </div>
-    </div>
-    <div class="chat-vision"><em>${t('missionLabel')}</em>${t('communityVision')}</div>
-    ${pinned.length ? `<div class="chat-pinned">📌 <span>${escapeHtml(pinned[pinned.length-1].text.slice(0,120))}</span></div>` : ''}
+    ${(pinned.length && !_pinnedDismissed) ? `<div class="chat-pinned" onclick="scrollToPost('${pinned[pinned.length-1].id}')">
+      <span>&#128204;</span>
+      <span>${escapeHtml(pinned[pinned.length-1].text.slice(0,100))}${pinned[pinned.length-1].text.length>100?'…':''}</span>
+      <button class="pin-dismiss" onclick="event.stopPropagation();_pinnedDismissed=true;rerenderCommunity();">&#10005;</button>
+    </div>` : ''}
     <div class="chat-search">
-      <input id="communitySearch" placeholder="🔍 ${t('searchMessages')}" value="${escapeHtml(State.communitySearch||'')}"
+      <input id="communitySearch" placeholder="&#128269; ${t('searchMessages')}" value="${escapeHtml(State.communitySearch||'')}"
         oninput="State.communitySearch=this.value; rerenderCommunity(true);">
     </div>
-    <div class="chat-scroll" id="chatScroll">${body}</div>
-    <div class="chat-composer">
+    <div class="chat-scroll" id="chatScroll" onscroll="chatScrolled()" onclick="closeCtxMenu()">
+      ${body}
+      <div class="new-msg-pill" id="newMsgPill" onclick="scrollToBottom()">&#8595; ${t('newMessagesPill')}</div>
+    </div>
+    <div class="typing-bar" id="typingBar" style="display:none;">
+      <div class="typing-dots"><span></span><span></span><span></span></div>
+      <span id="typingName"></span>
+    </div>
+    <div class="chat-composer" style="position:relative;">
       ${replyTo ? `<div class="replying-bar">
-          <div>↩︎ <strong>${escapeHtml(replyTo.fromName||replyTo.from)}</strong>: ${escapeHtml(replyTo.text.slice(0,60))}</div>
-          <button class="b-act" onclick="State.communityReplyTo=null; rerenderCommunity();">✕</button>
-        </div>` : ''}
-      <div class="composer-row">
-        <div class="emoji-picker-row">
-          <button class="composer-btn" onclick="toggleEmojiPicker()">😀</button>
-          <div id="emojiPicker" class="emoji-picker hidden">
-            ${EMOJI_PICKER_SET.map(e=>`<button class="emoji-opt" onclick="insertEmoji('${e}')">${e}</button>`).join('')}
+          <div class="rb-inner">
+            <div class="rb-name">${escapeHtml(replyTo.fromName||replyTo.from)}</div>
+            <div class="rb-text">${escapeHtml(replyTo.text.slice(0,80))}</div>
           </div>
+          <button class="b-act" onclick="State.communityReplyTo=null; rerenderCommunity();">&#10005;</button>
+        </div>` : ''}
+      <div id="emojiPanel" class="emoji-panel" style="display:none;">
+        <div class="emoji-tabs">
+          ${Object.keys(EMOJI_TABS_DATA).map(k=>`<button class="emoji-tab ${k===_emojiTab?'active':''}" onclick="_emojiTab='${k}';renderEmojiGrid()">${EMOJI_TAB_ICONS[k]}</button>`).join('')}
         </div>
-        <textarea id="communityBox" rows="1" placeholder="${t('communityPlaceholder')}"
-          oninput="this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,110)+'px';"
-          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();postToCommunity();}"></textarea>
-        <button class="composer-btn send" onclick="postToCommunity()">➤</button>
+        <div class="emoji-grid" id="emojiGrid">
+          ${(EMOJI_TABS_DATA[_emojiTab]||[]).map(e=>`<button onclick="insertEmoji('${e}')">${e}</button>`).join('')}
+        </div>
+      </div>
+      <div class="composer-row">
+        <div class="composer-attachments">
+          <button class="composer-btn" title="Attach" onclick="alert('File attach coming soon!')">&#128206;</button>
+          <button class="composer-btn" title="Photo" onclick="alert('Photo attach coming soon!')">&#128247;</button>
+        </div>
+        <div class="composer-input-wrap">
+          <textarea id="communityBox" rows="1"
+            placeholder="${t('communityPlaceholder')}"
+            oninput="autoResizeBox(this); updateSendBtn();"
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();postToCommunity();}"></textarea>
+          <button class="emoji-inline-btn" onclick="toggleEmojiPicker(event)">&#128512;</button>
+        </div>
+        <button class="composer-btn voice" id="communityVoiceBtn" title="Voice note" onclick="alert('Voice notes coming soon!')">&#127908;</button>
+        <button class="composer-btn send" id="communitySendBtn" onclick="postToCommunity()">&#10148;</button>
       </div>
       <div class="format-hint">${t('formatHint')}</div>
-    </div>
-  </div>
-  <button class="small-btn" style="margin-top:14px;" onclick="goto('dashboard')">${t('backToDash')}</button>`;
+    </div>`;
 }
+
+/* ================= TAB 2: IDEAS MARKET ================= */
+const IDEA_CATS = [['Ministry','catMinistry'],['Business','catBusiness'],['Community','catCommunity'],['Training','catTraining'],['Tech','catTech'],['Other','catOther']];
+
+function ideasMarketPanel(me){
+  let ideas = postsOfKind('idea');
+  const sort = State.ideaSort || 'top';
+  if (sort === 'top') ideas.sort((a,b)=> reactionCount(b,'\u{1F44D}') - reactionCount(a,'\u{1F44D}') || b.timestamp - a.timestamp);
+  else ideas.sort((a,b)=> b.timestamp - a.timestamp);
+
+  const cards = ideas.map(p=>{
+    const d = parseKindPost(p);
+    const votes = reactionCount(p,'\u{1F44D}');
+    const voted = iReacted(p,'\u{1F44D}');
+    const catKey = (IDEA_CATS.find(x=>x[0]===d.field)||['Other','catOther'])[1];
+    const canDel = p.from === me || ['admin','smentor'].includes(State.user.role);
+    return `<div class="idea-card">
+      <div class="idea-vote ${voted?'voted':''}" onclick="reactToCommunityPost('${p.id}','\u{1F44D}')" title="${t('upvote')}">
+        <div class="iv-arrow">&#9650;</div>
+        <div class="iv-num">${votes}</div>
+        <div class="iv-lbl">${t('upvotes')}</div>
+      </div>
+      <div class="idea-body">
+        <div class="ib-top"><span class="idea-cat">${t(catKey)}</span></div>
+        <h5>${escapeHtml(d.head)}</h5>
+        ${d.body?`<div class="ib-text">${formatMessageText(d.body)}</div>`:''}
+        <div class="ib-meta">
+          <span>${t('byLabel')} <strong>${escapeHtml(p.fromName||p.from)}</strong></span>
+          <span>&middot; ${dayLabelFor(p.timestamp)}</span>
+          ${canDel?`<button class="hub-del" onclick="deleteHubPost('${p.id}')">&#10005;</button>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `<div class="hub-panel">
+    <div class="hub-intro">
+      <h4>&#128161; ${t('ideasMarketTitle')}</h4>
+      <p>${t('ideasMarketDesc')}</p>
+    </div>
+    <div class="hub-composer">
+      <input id="ideaTitle" placeholder="${t('ideaTitlePh')}" maxlength="140">
+      <textarea id="ideaBody" placeholder="${t('ideaBodyPh')}" rows="2"></textarea>
+      <div class="hub-composer-row">
+        <select id="ideaCat">
+          ${IDEA_CATS.map(([v,k])=>`<option value="${v}">${t(k)}</option>`).join('')}
+        </select>
+        <button class="hub-post-btn" onclick="postIdea()">${t('postIdea')}</button>
+      </div>
+    </div>
+    <div class="hub-toolbar">
+      <button class="hub-chip ${sort==='top'?'active':''}" onclick="State.ideaSort='top';rerenderCommunity()">&#9650; ${t('sortTop')}</button>
+      <button class="hub-chip ${sort==='new'?'active':''}" onclick="State.ideaSort='new';rerenderCommunity()">&#10022; ${t('sortNew')}</button>
+    </div>
+    ${cards || `<div class="hub-empty">${t('noIdeasYet')}</div>`}
+  </div>`;
+}
+
+function postIdea(){
+  const ti = document.getElementById('ideaTitle');
+  const bo = document.getElementById('ideaBody');
+  const ca = document.getElementById('ideaCat');
+  if (!ti) return;
+  const title = ti.value.trim();
+  if (!title) { ti.focus(); return; }
+  const text = KIND_IDEA + (ca?ca.value:'Other') + '::' + title + (bo && bo.value.trim() ? '\n' + bo.value.trim() : '');
+  pushHubPost(text);
+}
+
+/* ================= TAB 3: GOALS JOURNAL ================= */
+function goalsJournalPanel(me){
+  const all = postsOfKind('goal');
+  const filt = State.goalFilter || 'all';
+  let goals = all.slice();
+  if (filt === 'mine') goals = goals.filter(p=>p.from===me);
+  else if (filt === 'open') goals = goals.filter(p=>!p.pinned);
+  else if (filt === 'done') goals = goals.filter(p=>!!p.pinned);
+  goals.sort((a,b)=> (a.pinned?1:0) - (b.pinned?1:0) || b.timestamp - a.timestamp);
+
+  const nOpen = all.filter(p=>!p.pinned).length;
+  const nDone = all.filter(p=>!!p.pinned).length;
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  const cards = goals.map(p=>{
+    const d = parseKindPost(p);
+    const done = !!p.pinned;
+    const target = (d.field && d.field !== '-') ? d.field : '';
+    const text = d.head + (d.body ? '\n' + d.body : '');
+    let badge = done
+      ? `<span class="goal-badge done">&#10003; ${t('goalDone')}</span>`
+      : `<span class="goal-badge open">${t('goalOpen')}</span>`;
+    if (!done && target){
+      const td = new Date(target + 'T00:00:00');
+      if (!isNaN(td) && td < today) badge = `<span class="goal-badge late">${t('goalOpen')} &middot; ${target}</span>`;
+    }
+    const cheers = reactionCount(p,'\u{1F389}');
+    const cheered = iReacted(p,'\u{1F389}');
+    const isMine = p.from === me;
+    const canDel = isMine || ['admin','smentor'].includes(State.user.role);
+    return `<div class="goal-card ${done?'done':''}">
+      <div class="gc-top">
+        <div class="goal-check" ${isMine?`onclick="toggleGoalDone('${p.id}')" title="${done?t('reopenGoal'):t('markDone')}"`:''}>&#10003;</div>
+        <div class="gc-main">
+          <div class="gc-text">${formatMessageText(text)}</div>
+          <div class="gc-meta">
+            ${badge}
+            ${(!done && target)?`<span>&#128197; ${target}</span>`:''}
+            <span>${t('byLabel')} <strong>${escapeHtml(p.fromName||p.from)}</strong></span>
+            <button class="cheer-btn ${cheered?'mine':''}" onclick="reactToCommunityPost('${p.id}','\u{1F389}')" title="${t('cheerOn')}">&#127881; ${cheers||''}</button>
+            ${canDel?`<button class="hub-del" onclick="deleteHubPost('${p.id}')">&#10005;</button>`:''}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `<div class="hub-panel">
+    <div class="hub-intro">
+      <h4>&#127919; ${t('goalsJournalTitle')}</h4>
+      <p>${t('goalsJournalDesc')}</p>
+    </div>
+    <div class="goals-stats">
+      <div class="goals-stat"><div class="gs-num">${nOpen}</div><div class="gs-lbl">${t('goalsStatOpen')}</div></div>
+      <div class="goals-stat done"><div class="gs-num">${nDone}</div><div class="gs-lbl">${t('goalsStatDone')}</div></div>
+    </div>
+    <div class="hub-composer">
+      <textarea id="goalText" placeholder="${t('goalTextPh')}" rows="2"></textarea>
+      <div class="hub-composer-row">
+        <input type="date" id="goalDate" title="${t('goalTargetDate')}">
+        <button class="hub-post-btn" onclick="postGoal()">${t('postGoal')}</button>
+      </div>
+    </div>
+    <div class="hub-toolbar">
+      ${[['all','filterAll'],['mine','filterMine'],['open','filterOpen'],['done','filterDone']]
+        .map(([v,k])=>`<button class="hub-chip ${filt===v?'active':''}" onclick="State.goalFilter='${v}';rerenderCommunity()">${t(k)}</button>`).join('')}
+    </div>
+    ${cards || `<div class="hub-empty">${t('noGoalsYet')}</div>`}
+  </div>`;
+}
+
+function postGoal(){
+  const tx = document.getElementById('goalText');
+  const dt = document.getElementById('goalDate');
+  if (!tx) return;
+  const body = tx.value.trim();
+  if (!body) { tx.focus(); return; }
+  const text = KIND_GOAL + ((dt && dt.value) ? dt.value : '-') + '::' + body;
+  pushHubPost(text);
+}
+function toggleGoalDone(postId){
+  const post = State.communityPosts.find(p=>p.id===postId);
+  if (!post) return;
+  post.pinned = !post.pinned;
+  persist('communityposts', State.communityPosts);
+  apiPost('communityPin', { postId, pinned: post.pinned ? '1' : '' });
+  rerenderCommunity();
+}
+
+/* ================= TAB 4: FUN LINKS ================= */
+const LINK_KINDS = [['Video','kindVideo'],['Article','kindArticle'],['Tool','kindTool'],['Music','kindMusic'],['Book','kindBook'],['Other','kindOther']];
+
+function funLinksPanel(me){
+  const links = postsOfKind('link').sort((a,b)=>b.timestamp-a.timestamp);
+  const cards = links.map(p=>{
+    const d = parseKindPost(p);
+    const url = d.head;
+    const title = d.body || url;
+    const kKey = (LINK_KINDS.find(x=>x[0]===d.field)||['Other','kindOther'])[1];
+    const likes = reactionCount(p,'❤️');
+    const liked = iReacted(p,'❤️');
+    const canDel = p.from === me || ['admin','smentor'].includes(State.user.role);
+    const safeUrl = /^https?:\/\//i.test(url) ? url : 'https://' + url;
+    return `<div class="link-card">
+      <div class="lc-top"><span class="link-kind">${t(kKey)}</span></div>
+      <h5>${escapeHtml(title)}</h5>
+      <a class="lc-url" href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(url)}</a>
+      <div class="lc-actions">
+        <a class="link-open-btn" href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer">${t('openLink')} &#8599;</a>
+        <button class="cheer-btn ${liked?'mine':''}" onclick="reactToCommunityPost('${p.id}','❤️')">&#10084;&#65039; ${likes||''}</button>
+        <span>${t('byLabel')} <strong>${escapeHtml(p.fromName||p.from)}</strong></span>
+        <span>&middot; ${dayLabelFor(p.timestamp)}</span>
+        ${canDel?`<button class="hub-del" onclick="deleteHubPost('${p.id}')">&#10005;</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+
+  return `<div class="hub-panel">
+    <div class="hub-intro">
+      <h4>&#128279; ${t('funLinksTitle')}</h4>
+      <p>${t('funLinksDesc')}</p>
+    </div>
+    <div class="hub-composer">
+      <input id="linkUrl" placeholder="${t('linkUrlPh')}" maxlength="400">
+      <input id="linkTitle" placeholder="${t('linkTitlePh')}" maxlength="200">
+      <div class="hub-composer-row">
+        <select id="linkKind">
+          ${LINK_KINDS.map(([v,k])=>`<option value="${v}">${t(k)}</option>`).join('')}
+        </select>
+        <button class="hub-post-btn" onclick="postLink()">${t('postLink')}</button>
+      </div>
+    </div>
+    ${cards || `<div class="hub-empty">${t('noLinksYet')}</div>`}
+  </div>`;
+}
+
+function postLink(){
+  const u = document.getElementById('linkUrl');
+  const ti = document.getElementById('linkTitle');
+  const kd = document.getElementById('linkKind');
+  if (!u) return;
+  const url = u.value.trim();
+  if (!url) { u.focus(); return; }
+  const text = KIND_LINK + (kd?kd.value:'Other') + '::' + url + (ti && ti.value.trim() ? '\n' + ti.value.trim() : '');
+  pushHubPost(text);
+}
+
+/* ================= shared hub post helpers ================= */
+function pushHubPost(text){
+  const u = State.user;
+  const post = { id:'c'+Date.now(), from:u.username, fromName:u.fullName||u.username, text,
+    timestamp:Date.now(), reactions:{}, comments:[], replyTo:'', pinned:false };
+  State.communityPosts.push(post);
+  persist('communityposts', State.communityPosts);
+  apiPost('communityPost', { id:post.id, from:u.username, fromName:post.fromName, text, replyTo:'' });
+  rerenderCommunity();
+}
+function deleteHubPost(postId){
+  if (!confirm(t('deleteConfirm'))) return;
+  State.communityPosts = State.communityPosts.filter(p=>p.id!==postId);
+  persist('communityposts', State.communityPosts);
+  apiPost('communityDelete', { postId, from: State.user.username });
+  rerenderCommunity();
+}
+
+function autoResizeBox(el){
+  el.style.height='auto';
+  el.style.height=Math.min(el.scrollHeight,110)+'px';
+}
+function updateSendBtn(){
+  const box = document.getElementById('communityBox');
+  const btn = document.getElementById('communitySendBtn');
+  const voice = document.getElementById('communityVoiceBtn');
+  if (!box||!btn) return;
+  const has = box.value.trim().length > 0;
+  btn.classList.toggle('has-text', has);
+  if (voice) voice.style.display = has ? 'none' : '';
+}
+
 function communityBubbleHtml(p, me){
   const mine = p.from === me;
   const reactions = p.reactions || {};
   const reactChips = Object.keys(reactions).filter(e=>(reactions[e]||[]).length)
-    .map(e=>`<button class="b-react ${reactions[e].includes(me)?'mine':''}" onclick="reactToCommunityPost('${p.id}','${e}')">${e} ${reactions[e].length}</button>`).join('');
+    .map(e=>`<button class="b-react ${reactions[e].includes(me)?'mine':''}"
+      onclick="reactToCommunityPost('${p.id}','${e}')">${e} ${reactions[e].length}</button>`).join('');
   const replied = p.replyTo ? State.communityPosts.find(x=>x.id===p.replyTo) : null;
   const time = new Date(p.timestamp).toLocaleTimeString(State.lang==='fr'?'fr-FR':'en-US',{hour:'2-digit',minute:'2-digit'});
-  const canPin = ['admin','smentor'].includes(State.user.role);
-  return `<div class="msg-row ${mine?'mine':''}">
-    <div class="msg-avatar">${mine ? '🙋' : avatarFor(p.from)}</div>
-    <div class="bubble">
-      ${!mine ? `<div class="b-author">${escapeHtml(p.fromName||p.from)}</div>` : ''}
-      ${replied ? `<div class="b-reply"><strong>${escapeHtml(replied.fromName||replied.from)}</strong>${escapeHtml(replied.text.slice(0,70))}</div>` : ''}
-      <div class="b-text">${formatMessageText(p.text)}</div>
-      ${reactChips ? `<div class="b-reacts">${reactChips}</div>` : ''}
-      <div class="b-time">${time}${p.pinned?' · 📌':''}</div>
-      <div class="b-actions">
-        <button class="b-act" onclick="toggleReactTray('${p.id}')">😊 ${t('react')}</button>
-        <button class="b-act" onclick="State.communityReplyTo='${p.id}'; rerenderCommunity();">↩︎ ${t('reply')}</button>
-        ${canPin ? `<button class="b-act" onclick="togglePinCommunity('${p.id}')">📌 ${p.pinned?t('unpin'):t('pin')}</button>` : ''}
+  const avatar = getUserAvatar(p.from);
+  return `<div class="msg-row ${mine?'mine':''}" id="msg_${p.id}"
+    oncontextmenu="showCtxMenu(event,'${p.id}',${mine})"
+    ontouchstart="startLongPress(event,'${p.id}',${mine})"
+    ontouchend="cancelLongPress()"
+    ontouchmove="cancelLongPress()">
+    ${!mine?`<div class="msg-avatar" title="${escapeHtml(p.fromName||p.from)}" onclick="showQuickReact(event,'${p.id}')">${avatar}</div>`:''}
+    <div class="bubble-wrap">
+      <div class="bubble" id="bub_${p.id}">
+        ${!mine?`<div class="b-author">${escapeHtml(p.fromName||p.from)}</div>`:''}
+        ${replied?`<div class="b-reply" onclick="scrollToPost('${replied.id}')">
+          <strong>${escapeHtml(replied.fromName||replied.from)}</strong>
+          <div class="b-rtext">${escapeHtml(replied.text.slice(0,80))}</div>
+        </div>`:''}
+        <div class="b-text">${formatMessageText(p.text)}</div>
+        <div class="b-footer">
+          ${p.pinned?'<span style="font-size:.65em;">&#128204;</span>':''}
+          <span class="b-time">${time}</span>
+          ${mine?'<span class="b-tick">&#10003;&#10003;</span>':''}
+        </div>
       </div>
-      <div id="tray_${p.id}" class="react-tray hidden">
-        ${QUICK_EMOJIS.map(e=>`<button onclick="reactToCommunityPost('${p.id}','${e}')">${e}</button>`).join('')}
-      </div>
+      ${reactChips?`<div class="b-reacts">${reactChips}</div>`:''}
     </div>
   </div>`;
 }
-function toggleReactTray(id){
-  const el = document.getElementById('tray_'+id);
-  if (el) el.classList.toggle('hidden');
+
+let _lpTimer = null;
+let _lpPostId = null;
+let _lpMine = false;
+let _lpEvent = null;
+function startLongPress(e, postId, mine){
+  _lpEvent = e; _lpPostId = postId; _lpMine = mine;
+  _lpTimer = setTimeout(()=>{ if(_lpEvent) showCtxMenu(_lpEvent,_lpPostId,_lpMine); }, 520);
 }
+function cancelLongPress(){ clearTimeout(_lpTimer); _lpTimer=null; }
+
+function showCtxMenu(e, postId, mine){
+  e.preventDefault(); e.stopPropagation();
+  closeCtxMenu();
+  const canPin = ['admin','smentor'].includes(State.user.role);
+  const post = State.communityPosts.find(p=>p.id===postId);
+  const qr = document.createElement('div');
+  qr.className = 'quick-react-bar'; qr.id = 'qrBar';
+  qr.innerHTML = QUICK_EMOJIS.map(em=>`<button onclick="reactToCommunityPost('${postId}','${em}');closeCtxMenu();">${em}</button>`).join('');
+  document.body.appendChild(qr);
+  _quickReactBar = qr;
+  const bub = document.getElementById('bub_'+postId);
+  if (bub){
+    const rect = bub.getBoundingClientRect();
+    const qw = 260;
+    let left = Math.min(rect.left, window.innerWidth - qw - 10);
+    let top = rect.top - 52;
+    if (top < 10) top = rect.bottom + 6;
+    qr.style.cssText = `position:fixed;left:${Math.max(6,left)}px;top:${top}px;`;
+  }
+  const menu = document.createElement('div');
+  menu.className = 'ctx-menu'; menu.id = 'ctxMenu';
+  menu.innerHTML = `
+    <button onclick="ctxReply('${postId}')">&#8617;&#65038; ${t('reply')}</button>
+    <button onclick="ctxCopy('${postId}')">&#128203; Copy</button>
+    ${canPin&&post?`<button onclick="ctxPin('${postId}')">${post.pinned?'Unpin':'&#128204; Pin'}</button>`:''}
+    ${mine?`<hr><button class="danger" onclick="ctxDelete('${postId}')">&#128465;&#65038; Delete</button>`:''}
+  `;
+  document.body.appendChild(menu);
+  _ctxMenu = menu;
+  const mw = 170;
+  let x = e.clientX || (e.touches&&e.touches[0]?e.touches[0].clientX:160);
+  let y = e.clientY || (e.touches&&e.touches[0]?e.touches[0].clientY:200);
+  if (x + mw > window.innerWidth) x = window.innerWidth - mw - 8;
+  if (y + 150 > window.innerHeight) y = y - 160;
+  menu.style.cssText = `position:fixed;left:${Math.max(4,x)}px;top:${Math.max(4,y)}px;`;
+}
+function closeCtxMenu(){
+  if (_ctxMenu){ _ctxMenu.remove(); _ctxMenu=null; }
+  if (_quickReactBar){ _quickReactBar.remove(); _quickReactBar=null; }
+}
+function ctxReply(postId){
+  closeCtxMenu();
+  State.communityReplyTo = postId;
+  rerenderCommunity();
+  setTimeout(()=>{ const b=document.getElementById('communityBox'); if(b) b.focus(); },100);
+}
+function ctxCopy(postId){
+  closeCtxMenu();
+  const post = State.communityPosts.find(p=>p.id===postId);
+  if (post && navigator.clipboard) navigator.clipboard.writeText(post.text).catch(()=>{});
+}
+function ctxPin(postId){ closeCtxMenu(); togglePinCommunity(postId); }
+function ctxDelete(postId){
+  closeCtxMenu();
+  if (!confirm('Delete this message?')) return;
+  State.communityPosts = State.communityPosts.filter(p=>p.id!==postId);
+  persist('communityposts', State.communityPosts);
+  apiPost('communityDelete', { postId, from: State.user.username });
+  rerenderCommunity();
+}
+function showQuickReact(e, postId){
+  e.stopPropagation();
+  closeCtxMenu();
+  const qr = document.createElement('div');
+  qr.className = 'quick-react-bar'; qr.id = 'qrBar';
+  qr.innerHTML = QUICK_EMOJIS.map(em=>`<button onclick="reactToCommunityPost('${postId}','${em}');closeCtxMenu();">${em}</button>`).join('');
+  document.body.appendChild(qr);
+  _quickReactBar = qr;
+  const rect = e.currentTarget.getBoundingClientRect();
+  const qw = 260;
+  let left = Math.max(6, rect.left);
+  if (left + qw > window.innerWidth) left = window.innerWidth - qw - 6;
+  qr.style.cssText = `position:fixed;left:${left}px;top:${rect.top-52}px;`;
+}
+function scrollToPost(id){
+  const el = document.getElementById('msg_'+id);
+  if (el){
+    el.scrollIntoView({behavior:'smooth',block:'center'});
+    el.style.transition='background .3s';
+    el.style.background='rgba(242,183,5,.25)';
+    setTimeout(()=>el.style.background='',900);
+  }
+}
+function scrollToBottom(){
+  const s = document.getElementById('chatScroll');
+  if (s) s.scrollTop = s.scrollHeight;
+  const pill = document.getElementById('newMsgPill');
+  if (pill) pill.style.display='none';
+}
+function chatScrolled(){
+  const s = document.getElementById('chatScroll');
+  const pill = document.getElementById('newMsgPill');
+  if (!s||!pill) return;
+  const atBottom = s.scrollHeight - s.scrollTop - s.clientHeight < 80;
+  pill.style.display = atBottom ? 'none' : '';
+}
+function promptSetAvatar(){
+  const options = ['🙂','😊','🌻','🦁','🌟','🕊️','🌿','🔥','📖','🎯','🌱','💡','🦋','🎤','🏆','✝️'];
+  const pick = prompt('Pick your avatar emoji (paste one):\n\n' + options.join('  '));
+  if (pick && pick.trim()) setUserAvatar(pick.trim());
+}
+
 function rerenderCommunity(keepFocus){
   if (State.view !== 'community') return;
   const scroll = document.getElementById('chatScroll');
-  const atBottom = scroll ? (scroll.scrollHeight - scroll.scrollTop - scroll.clientHeight < 60) : true;
+  const atBottom = scroll ? (scroll.scrollHeight - scroll.scrollTop - scroll.clientHeight < 80) : true;
+  const panel = document.getElementById('mainwrap').querySelector('.hub-panel');
+  const panelTop = panel ? panel.scrollTop : 0;
   document.getElementById('mainwrap').innerHTML = communityView();
   const s2 = document.getElementById('chatScroll');
-  if (s2) s2.scrollTop = s2.scrollHeight;
+  if (s2 && atBottom) s2.scrollTop = s2.scrollHeight;
+  const p2 = document.getElementById('mainwrap').querySelector('.hub-panel');
+  if (p2 && panelTop) p2.scrollTop = panelTop;
   if (keepFocus){
     const inp = document.getElementById('communitySearch');
     if (inp){ inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
   }
 }
-function toggleEmojiPicker(){
-  const el = document.getElementById('emojiPicker');
-  if (el) el.classList.toggle('hidden');
+
+function renderEmojiGrid(){
+  const grid = document.getElementById('emojiGrid');
+  if (!grid) return;
+  grid.innerHTML = (EMOJI_TABS_DATA[_emojiTab]||[]).map(e=>`<button onclick="insertEmoji('${e}')">${e}</button>`).join('');
+  document.querySelectorAll('.emoji-tab').forEach((btn,i)=>{
+    const key = Object.keys(EMOJI_TABS_DATA)[i];
+    btn.classList.toggle('active', key===_emojiTab);
+  });
 }
+function toggleEmojiPicker(e){
+  if (e) e.stopPropagation();
+  const panel = document.getElementById('emojiPanel');
+  if (!panel) return;
+  const open = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : 'flex';
+  if (!open) renderEmojiGrid();
+}
+document.addEventListener('click', function(e){
+  const panel = document.getElementById('emojiPanel');
+  if (panel && panel.style.display!=='none'){
+    if (!panel.contains(e.target) && !e.target.classList.contains('emoji-inline-btn')){
+      panel.style.display='none';
+    }
+  }
+  closeCtxMenu();
+});
 function insertEmoji(e){
   const box = document.getElementById('communityBox');
-  if (box){ box.value += e; box.focus(); }
+  if (!box) return;
+  const pos = box.selectionStart;
+  const val = box.value;
+  box.value = val.slice(0,pos) + e + val.slice(box.selectionEnd);
+  box.selectionStart = box.selectionEnd = pos + e.length;
+  box.focus();
+  updateSendBtn();
 }
 function postToCommunity(){
   const box = document.getElementById('communityBox');
+  if (!box) return;
   const text = box.value.trim(); if (!text) return;
   const u = State.user;
   const post = { id:'c'+Date.now(), from:u.username, fromName:u.fullName||u.username, text,
@@ -2182,6 +3294,8 @@ function postToCommunity(){
   persist('communityposts', State.communityPosts);
   apiPost('communityPost', { id:post.id, from:u.username, fromName:post.fromName, text, replyTo:post.replyTo });
   State.communityReplyTo = null;
+  const panel = document.getElementById('emojiPanel');
+  if (panel) panel.style.display='none';
   rerenderCommunity();
 }
 function reactToCommunityPost(postId, emoji){
@@ -2202,10 +3316,11 @@ function togglePinCommunity(postId){
   post.pinned = !post.pinned;
   persist('communityposts', State.communityPosts);
   apiPost('communityPin', { postId, pinned: post.pinned ? '1' : '' });
+  _pinnedDismissed = false;
   rerenderCommunity();
 }
+function toggleReactTray(id){ /* legacy -- now handled by context menu */ }
 function addCommunityComment(postId){
-  // kept for admin activity view compatibility
   const box = document.getElementById('communityCommentBox_'+postId);
   if (!box) return;
   const text = box.value.trim(); if (!text) return;
@@ -2218,7 +3333,17 @@ function addCommunityComment(postId){
   apiPost('communityComment', { postId, from:u.username, fromName:u.fullName||u.username, text });
   render();
 }
+
 function communityPostCardHtml(p, me){
+  const k = postKind(p);
+  if (k !== 'chat'){
+    const d = parseKindPost(p);
+    const tag = k==='idea' ? t('tabIdeas') : k==='goal' ? t('tabGoals') : t('tabLinks');
+    return `<div class="post-card">
+      <div class="post-meta"><strong>${escapeHtml(p.fromName||p.from)}</strong><span>${new Date(p.timestamp).toLocaleString()}</span></div>
+      <div class="post-text"><em style="color:var(--gold);font-weight:700;">[${tag}]</em> ${escapeHtml(d.head)}</div>
+    </div>`;
+  }
   // compact card used by the admin activity tab
   const reactions = p.reactions || {};
   const chips = Object.keys(reactions).filter(e=>(reactions[e]||[]).length)
