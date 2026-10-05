@@ -6,7 +6,44 @@
 <meta name="theme-color" content="#0B1F3A">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Team21">
+<meta name="application-name" content="Team21 Academy">
+<meta name="description" content="Team21 Academy — bilingual servant leadership training.">
 <title>Team21 Academy — Servant Leadership LMS</title>
+<script>
+/* A single-file app can't ship a separate manifest.json, so build one at
+   runtime and hand the browser a blob URL. Enough for Android/Chrome to
+   name and icon the home-screen shortcut properly. */
+(function(){
+  try {
+    var icon = 'data:image/svg+xml;base64,' + btoa(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512">' +
+      '<rect width="512" height="512" rx="96" fill="#0B1F3A"/>' +
+      '<text x="256" y="310" font-family="Georgia,serif" font-size="210" font-weight="bold" ' +
+      'fill="#F2B705" text-anchor="middle">T21</text></svg>');
+    var mf = {
+      name: 'Team21 Academy', short_name: 'Team21',
+      description: 'Bilingual servant leadership training.',
+      start_url: location.pathname + location.search,
+      scope: './', display: 'standalone', orientation: 'portrait',
+      background_color: '#0B1F3A', theme_color: '#0B1F3A',
+      icons: [ { src: icon, sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' } ]
+    };
+    var json = JSON.stringify(mf), url = null;
+    // Blob URL where available; a data URI otherwise (older WebKit, some in-app browsers).
+    try {
+      if (window.URL && URL.createObjectURL && window.Blob)
+        url = URL.createObjectURL(new Blob([json], {type:'application/manifest+json'}));
+    } catch(e){ url = null; }
+    if (!url) url = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(json);
+    var l = document.createElement('link'); l.rel = 'manifest'; l.href = url;
+    document.head.appendChild(l);
+    var al = document.createElement('link'); al.rel = 'apple-touch-icon'; al.href = icon;
+    document.head.appendChild(al);
+  } catch(e){}
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Source+Serif+4:ital@0;1&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -72,6 +109,9 @@ button{font-family:inherit;cursor:pointer;}
 
 /* ---------- container / cards ---------- */
 .wrap{max-width:1180px; margin:0 auto; padding:24px 20px 80px; position:relative; z-index:2;}
+/* The chat hub is a workspace, not a document: give it the window. */
+.wrap.wrap-chat{max-width:1500px; padding:12px 16px 26px;}
+@media (max-width:900px){ .wrap.wrap-chat{padding:6px 8px 14px;} }
 .card{
   background:var(--white); border-radius:var(--radius); box-shadow:var(--shadow);
   padding:26px; margin-bottom:22px; border:1px solid var(--line);
@@ -347,6 +387,87 @@ label.field-label{font-size:.82em; font-weight:600; color:var(--navy); display:b
 .mini-comment-row{display:flex; gap:8px; margin-top:8px;}
 .mini-comment-row input{margin-bottom:0; font-size:.85em;}
 
+/* ---------- get-the-app modal ---------- */
+.gta-backdrop{
+  position:fixed;inset:0;z-index:400;
+  background:rgba(11,31,58,.6);
+  display:flex;align-items:center;justify-content:center;
+  padding:18px;animation:gtaFade .15s ease;
+}
+@keyframes gtaFade{from{opacity:0}to{opacity:1}}
+.gta-modal{
+  background:var(--white);border-radius:14px;
+  max-width:460px;width:100%;max-height:88svh;overflow-y:auto;
+  box-shadow:0 18px 60px rgba(11,31,58,.4);
+  animation:gtaUp .2s ease;
+}
+@keyframes gtaUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.gta-head{
+  background:linear-gradient(135deg,#0B1F3A,#1A3B6B);color:#fff;
+  padding:16px 18px;border-radius:14px 14px 0 0;
+  border-bottom:3px solid var(--gold);
+  display:flex;align-items:center;gap:11px;
+}
+.gta-head h3{
+  margin:0;font-family:'Playfair Display',Georgia,serif;
+  font-size:1.12em;flex:1;color:#ffffff !important;
+}
+.gta-sect h4{color:var(--navy) !important;}
+.gta-head .gta-x{
+  background:rgba(255,255,255,.14);border:none;color:#fff;
+  width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1em;
+  flex-shrink:0;
+}
+.gta-head .gta-x:hover{background:rgba(255,255,255,.28);}
+.gta-body{padding:16px 18px 18px;}
+.gta-sect{margin-bottom:18px;}
+.gta-sect:last-child{margin-bottom:0;}
+.gta-sect h4{
+  margin:0 0 7px;font-size:.92em;color:var(--navy);
+  display:flex;align-items:center;gap:7px;
+}
+.gta-sect p{margin:0 0 9px;font-size:.84em;color:var(--grey);line-height:1.55;}
+.gta-steps{
+  margin:0;padding-left:20px;font-size:.85em;
+  color:var(--ink);line-height:1.7;
+}
+.gta-steps li{margin-bottom:3px;}
+.gta-steps b{color:var(--navy);}
+.gta-btn{
+  background:var(--navy);color:#fff;border:none;
+  border-radius:22px;padding:10px 20px;font-size:.9em;
+  font-weight:700;cursor:pointer;width:100%;margin-bottom:8px;
+}
+.gta-btn:hover{background:#1A3B6B;}
+.gta-btn.gold{background:var(--gold);color:var(--navy);}
+.gta-btn.gold:hover{background:var(--gold-dark);}
+.gta-btn.ghost{
+  background:var(--offwhite);color:var(--navy);
+  border:1px solid var(--line);
+}
+.gta-btn.ghost:hover{background:var(--line);}
+.gta-kbd{
+  background:var(--offwhite);border:1px solid var(--line);
+  border-bottom-width:2px;border-radius:5px;
+  padding:1px 7px;font-family:ui-monospace,Menlo,monospace;
+  font-size:.92em;color:var(--navy);font-weight:700;
+}
+.gta-note{
+  background:#FFFBE8;border-left:3px solid var(--gold);
+  border-radius:0 6px 6px 0;padding:8px 11px;
+  font-size:.79em;color:#6B5700;line-height:1.55;margin-top:9px;
+}
+.gta-done{
+  background:#EFFAF3;border-left:3px solid var(--success);
+  border-radius:0 6px 6px 0;padding:8px 11px;
+  font-size:.82em;color:#14633C;margin-bottom:10px;
+}
+.footer-credit .gta-link{
+  background:none;border:none;color:inherit;
+  text-decoration:underline;cursor:pointer;
+  font-size:1em;font-family:inherit;padding:0 2px;
+}
+
 /* ---------- Team21 Chat hub ---------- */
 .chat-shell{
   background:var(--white);
@@ -354,8 +475,9 @@ label.field-label{font-size:.82em; font-weight:600; color:var(--navy); display:b
   overflow:hidden;
   box-shadow:0 4px 28px rgba(11,31,58,.18);
   display:flex; flex-direction:column;
-  height:calc(100svh - 120px);
-  min-height:420px;
+  /* Starting point; fitChatShell() measures and corrects after paint. */
+  height:calc(100svh - 168px);
+  min-height:380px;
   position:relative;
 }
 .chat-header{
@@ -382,17 +504,17 @@ label.field-label{font-size:.82em; font-weight:600; color:var(--navy); display:b
 .ch-meta{flex:1;min-width:0;}
 .ch-title{
   font-family:'Playfair Display',Georgia,serif;
-  font-weight:700;font-size:1.06em;line-height:1.2;
+  font-weight:700;font-size:1.26em;line-height:1.2;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-.ch-sub{font-size:.72em;color:#9FB4D6;letter-spacing:.3px;margin-top:1px;}
+.ch-sub{font-size:.8em;color:#A7BBDA;letter-spacing:.3px;margin-top:2px;}
 .ch-avatars{display:flex;align-items:center;margin-top:3px;}
 .ch-av-pill{
-  width:20px;height:20px;border-radius:50%;
-  background:rgba(255,255,255,.18);
-  border:1.5px solid rgba(255,255,255,.4);
-  font-size:.65em;display:flex;align-items:center;justify-content:center;
-  margin-left:-5px;
+  width:23px;height:23px;border-radius:50%;
+  background:#12304F;
+  border:2px solid #0B1F3A;
+  font-size:.72em;display:flex;align-items:center;justify-content:center;
+  margin-left:-7px;flex-shrink:0;
 }
 .ch-av-pill:first-child{margin-left:0;}
 .ch-header-actions{display:flex;gap:4px;align-items:center;flex-shrink:0;}
@@ -403,9 +525,10 @@ label.field-label{font-size:.82em; font-weight:600; color:var(--navy); display:b
   display:flex;align-items:center;justify-content:center;
 }
 .ch-icon-btn:hover{background:rgba(255,255,255,.2);}
+.ch-icon-btn.on{background:var(--gold);color:var(--navy);}
 .chat-vision{
-  background:#061428;color:#8BA8CC;
-  font-size:.73em;padding:6px 16px;
+  background:#061428;color:#93AECE;
+  font-size:.79em;padding:7px 16px;
   border-bottom:1px solid rgba(242,183,5,.2);
   line-height:1.5;display:flex;align-items:center;gap:6px;
   flex-shrink:0;
@@ -456,90 +579,114 @@ label.field-label{font-size:.82em; font-weight:600; color:var(--navy); display:b
   scroll-behavior:smooth;
   position:relative;
 }
-.chat-scroll::-webkit-scrollbar{width:4px;}
-.chat-scroll::-webkit-scrollbar-thumb{background:rgba(11,31,58,.2);border-radius:4px;}
-.chat-daysep{text-align:center;margin:10px 0 8px;position:relative;z-index:1;}
+/* Keep lines a comfortable reading length on a wide monitor. */
+.chat-inner{max-width:1020px; margin:0 auto;}
+.chat-scroll::-webkit-scrollbar{width:7px;}
+.chat-scroll::-webkit-scrollbar-thumb{background:rgba(11,31,58,.25);border-radius:4px;}
+.chat-daysep{text-align:center;margin:16px 0 12px;position:relative;z-index:1;}
 .chat-daysep span{
-  background:rgba(11,31,58,.12);
-  color:#445;font-size:.7em;padding:3px 12px;
-  border-radius:12px;letter-spacing:.4px;
-  border:1px solid rgba(255,255,255,.5);
+  background:rgba(255,255,255,.92);
+  color:#3A4A5C;font-size:.76em;font-weight:700;
+  padding:4px 15px;border-radius:14px;letter-spacing:.5px;
+  border:1px solid rgba(11,31,58,.09);
+  box-shadow:0 1px 3px rgba(11,31,58,.07);
+  text-transform:uppercase;
 }
-.msg-row{display:flex;gap:8px;margin-bottom:8px;align-items:flex-end;}
+.msg-row{display:flex;gap:10px;margin-bottom:10px;align-items:flex-end;}
 .msg-row.mine{flex-direction:row-reverse;}
+/* Consecutive messages from the same speaker tuck in close. */
+.msg-row.grouped{margin-bottom:3px;}
 .msg-avatar{
-  width:30px;height:30px;border-radius:50%;
-  background:var(--white);border:1.5px solid rgba(11,31,58,.12);
+  width:38px;height:38px;border-radius:50%;
+  background:var(--white);border:2px solid rgba(11,31,58,.1);
   display:flex;align-items:center;justify-content:center;
-  font-size:.95em;flex-shrink:0;cursor:pointer;
-  box-shadow:0 1px 4px rgba(0,0,0,.1);
+  font-size:1.2em;flex-shrink:0;cursor:pointer;
+  box-shadow:0 1px 5px rgba(0,0,0,.12);
+}
+.msg-avatar.spacer{
+  background:none;border:none;box-shadow:none;cursor:default;
 }
 .msg-row.mine .msg-avatar{display:none;}
-.bubble-wrap{display:flex;flex-direction:column;max-width:74%;position:relative;}
+.bubble-wrap{display:flex;flex-direction:column;max-width:72%;position:relative;}
 .msg-row.mine .bubble-wrap{align-items:flex-end;}
 .bubble{
   background:#ffffff;
-  border-radius:0px 14px 14px 14px;
-  padding:8px 12px 6px;
+  border-radius:4px 16px 16px 16px;
+  padding:9px 14px 7px;
   position:relative;
-  box-shadow:0 1px 3px rgba(0,0,0,.12);
+  box-shadow:0 1px 4px rgba(11,31,58,.13);
   word-break:break-word;
+  /* Speaker colour runs down the edge of every bubble they send. */
+  border-left:3px solid var(--spk,#1F7ACA);
 }
+.msg-row.grouped .bubble{border-radius:4px 16px 16px 16px;}
 .bubble::before{
-  content:'';position:absolute;left:-7px;bottom:8px;
-  border:7px solid transparent;
-  border-right-color:#ffffff;
+  content:'';position:absolute;left:-9px;bottom:9px;
+  border:8px solid transparent;
+  border-right-color:var(--spk,#1F7ACA);
   border-left:0;
 }
+.msg-row.grouped .bubble::before{display:none;}
 .msg-row.mine .bubble{
-  background:#D9FDD3;
-  border-radius:14px 0px 14px 14px;
+  background:#DCF8C6;
+  border-radius:16px 4px 16px 16px;
+  border-left:none;
+  border-right:3px solid #4FA86A;
 }
 .msg-row.mine .bubble::before{
-  left:auto;right:-7px;
+  left:auto;right:-9px;
   border-right-color:transparent;
-  border-left:7px solid #D9FDD3;
+  border-left:8px solid #4FA86A;
 }
 .bubble .b-author{
-  font-size:.74em;font-weight:700;color:#1F7ACA;
-  margin-bottom:2px;
+  font-size:.84em;font-weight:800;color:var(--spk,#1F7ACA);
+  margin-bottom:3px;letter-spacing:.1px;
+  display:flex;align-items:center;gap:6px;
+}
+.bubble .b-author .b-role{
+  background:rgba(11,31,58,.08);color:#5A6B80;
+  border-radius:8px;padding:0 6px;
+  font-size:.78em;font-weight:700;
+  text-transform:uppercase;letter-spacing:.4px;
 }
 .msg-row.mine .bubble .b-author{display:none;}
 .bubble .b-text{
-  font-size:.93em;line-height:1.5;
-  color:#111;word-wrap:break-word;white-space:pre-wrap;
+  font-size:1.04em;line-height:1.58;
+  color:#14202E;word-wrap:break-word;white-space:pre-wrap;
+  letter-spacing:.005em;
 }
 .bubble .b-footer{
   display:flex;justify-content:flex-end;
-  align-items:center;gap:4px;margin-top:3px;
+  align-items:center;gap:5px;margin-top:4px;
 }
-.bubble .b-time{font-size:.65em;color:#7A8A9A;}
-.msg-row.mine .b-time{color:#4FA86A;}
-.b-tick{font-size:.7em;color:#4FA86A;}
+.bubble .b-time{font-size:.74em;color:#8494A6;}
+.msg-row.mine .b-time{color:#4A8E63;}
+.b-tick{font-size:.78em;color:#4A8E63;}
 .bubble .b-reply{
   border-left:3px solid var(--gold);
-  background:rgba(11,31,58,.06);
-  padding:4px 8px;border-radius:0 5px 5px 0;
-  margin-bottom:5px;font-size:.77em;
+  background:rgba(11,31,58,.055);
+  padding:6px 10px;border-radius:0 7px 7px 0;
+  margin-bottom:7px;font-size:.87em;
   cursor:pointer;
 }
 .bubble .b-reply strong{
   color:var(--navy);display:block;
-  font-size:.95em;margin-bottom:1px;
+  font-size:.95em;margin-bottom:2px;
 }
 .bubble .b-reply .b-rtext{
-  color:#555;overflow:hidden;
+  color:#546070;overflow:hidden;
   white-space:nowrap;text-overflow:ellipsis;
-  max-width:220px;
+  max-width:300px;
 }
 .b-reacts{
-  display:flex;gap:3px;flex-wrap:wrap;margin-top:4px;
+  display:flex;gap:4px;flex-wrap:wrap;margin-top:5px;
 }
 .b-react{
-  background:rgba(255,255,255,.85);
-  border:1px solid rgba(11,31,58,.12);
-  border-radius:12px;padding:1px 7px;
-  font-size:.78em;cursor:pointer;
+  background:#ffffff;
+  border:1px solid rgba(11,31,58,.14);
+  border-radius:14px;padding:2px 9px;
+  font-size:.86em;cursor:pointer;
+  box-shadow:0 1px 2px rgba(11,31,58,.07);
   transition:transform .12s;
 }
 .b-react:hover{transform:scale(1.15);}
@@ -586,8 +733,9 @@ label.field-label{font-size:.82em; font-weight:600; color:var(--navy); display:b
 .chat-composer{
   border-top:1px solid #d8dee6;
   background:#f0f2f5;
-  padding:8px 10px;flex-shrink:0;
+  padding:10px 12px;flex-shrink:0;
 }
+.chat-composer .composer-inner{max-width:1020px;margin:0 auto;}
 .replying-bar{
   background:#ffffff;
   border-left:3px solid var(--gold);
@@ -627,23 +775,27 @@ label.field-label{font-size:.82em; font-weight:600; color:var(--navy); display:b
 .composer-btn.voice{font-size:1.15em;}
 .composer-input-wrap{
   flex:1;background:#ffffff;
-  border-radius:21px;
+  border-radius:22px;
   border:1px solid rgba(11,31,58,.12);
-  display:flex;align-items:flex-end;
-  padding:5px 12px;
+  display:flex;align-items:center;
+  padding:4px 8px 4px 14px;
   box-shadow:inset 0 1px 3px rgba(0,0,0,.04);
 }
 .composer-input-wrap textarea{
   flex:1;border:none;background:none;
   resize:none;outline:none;
-  font-size:.95em;padding:4px 0;
-  max-height:110px;margin-bottom:0;
-  font-family:inherit;line-height:1.4;
+  font-size:1.02em;padding:6px 2px;
+  min-height:0;                 /* beat the global textarea{min-height:80px} */
+  height:34px;max-height:160px;
+  margin-bottom:0;overflow-y:auto;
+  font-family:inherit;line-height:1.5;
+  color:var(--ink);
 }
 .composer-input-wrap .emoji-inline-btn{
-  background:none;border:none;font-size:1.1em;
-  cursor:pointer;padding:0 4px;color:#54656f;
-  align-self:flex-end;margin-bottom:2px;
+  background:none;border:none;font-size:1.25em;
+  cursor:pointer;padding:0 6px;color:#54656f;
+  align-self:flex-end;margin-bottom:4px;
+  line-height:1;
 }
 .emoji-panel{
   position:absolute;bottom:100%;left:0;right:0;
@@ -722,8 +874,8 @@ label.field-label{font-size:.82em; font-weight:600; color:var(--navy); display:b
 .hub-tabs::-webkit-scrollbar{display:none;}
 .hub-tab{
   flex:1 0 auto;background:none;border:none;
-  color:#8BA8CC;font-size:.78em;font-weight:600;
-  padding:9px 13px 7px;cursor:pointer;
+  color:#95B0D2;font-size:.86em;font-weight:600;
+  padding:11px 16px 9px;cursor:pointer;
   border-bottom:2.5px solid transparent;
   white-space:nowrap;letter-spacing:.2px;
   display:flex;align-items:center;gap:5px;
@@ -1106,20 +1258,35 @@ textarea{min-height:80px; resize:vertical;}
 }
 
 /* --- community chat responsive --- */
-@media (max-width:700px){
-  .chat-shell{ border-radius:8px; height:calc(100svh - 110px); }
-  .bubble-wrap{ max-width:88%; }
+@media (max-width:900px){
+  /* Every row above the thread is a row of messages lost: keep them thin. */
+  .chat-vision{ white-space:nowrap; overflow:hidden; }
+  .chat-vision .cv-text{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .chat-shell{ border-radius:8px; height:calc(100svh - 230px); min-height:360px; }
+  .bubble-wrap{ max-width:82%; }
   .chat-header{ padding:10px 12px; }
-  .ch-avatar{ width:38px; height:38px; font-size:1.2em; }
-  .chat-composer{ padding:6px 8px; }
+  .ch-avatar{ width:40px; height:40px; font-size:1.25em; }
+  .ch-title{ font-size:1.1em; }
+  .chat-composer{ padding:8px 9px; }
   .format-hint{ display:none; }
   .emoji-panel{ border-radius:0; }
   .emoji-grid{ grid-template-columns:repeat(7,1fr); }
-  .chat-search input{ font-size:.84em; }
+  .chat-search input{ font-size:.9em; }
+  .msg-avatar{ width:34px; height:34px; font-size:1.1em; }
+  .bubble .b-text{ font-size:1.02em; }
+  .hub-tab{ font-size:.8em; padding:10px 12px 8px; }
 }
-@media (max-width:400px){
-  .bubble-wrap{ max-width:93%; }
-  .chat-vision{ font-size:.68em; padding:5px 10px; }
+@media (max-width:460px){
+  .composer-attachments .composer-btn:nth-child(2){ display:none; }  /* 📎 is enough */
+  .composer-btn{ width:34px; height:34px; font-size:1.1em; }
+  .bubble-wrap{ max-width:86%; }
+  .chat-vision{ font-size:.73em; padding:6px 11px; }
+  .chat-vision span.cv-text{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .msg-row{ gap:7px; }
+  .msg-avatar{ width:30px; height:30px; font-size:1em; }
+  .bubble{ padding:8px 12px 6px; }
+  .bubble .b-author{ font-size:.82em; }
+  .ch-avatars{ display:none; }
 }
 
 /* --- admin dashboard tables wrap on mobile --- */
@@ -1252,6 +1419,23 @@ en: {
   communityPlaceholder:"What's on your mind?", emoji:'Emoji',
   membersLabel:'members', everywhereWeAre:'everywhere we are', missionLabel:'MISSION',
   chatHubName:'Team21 Chat', newMessagesPill:'New messages',
+  getTheApp:'Save this as an app', getTheAppShort:'Get the app',
+  installTitle:'Install on your phone', bookmarkTitle:'Bookmark this page',
+  installNow:'Install now', installDesc:'Add Team21 to your home screen and it opens like any other app — full screen, one tap, no browser bar.',
+  bookmarkDesc:'Keep it one click away in your browser.',
+  copyLink:'Copy the link', linkCopied:'Link copied — paste it anywhere to come back.',
+  shareLink:'Share', addBookmarkNow:'Add bookmark',
+  stepIosShare:'Tap the <b>Share</b> button at the bottom of Safari',
+  stepIosAdd:'Scroll down and tap <b>Add to Home Screen</b>',
+  stepIosConfirm:'Tap <b>Add</b> — the Team21 icon appears on your home screen',
+  stepAndMenu:'Tap the <b>⋮</b> menu at the top right of Chrome',
+  stepAndAdd:'Tap <b>Add to Home screen</b> (or <b>Install app</b>)',
+  stepAndConfirm:'Tap <b>Install</b> — the Team21 icon appears on your home screen',
+  stepDeskInstall:'Click the <b>install icon</b> in your browser address bar',
+  stepDeskMenu:'Or open the browser menu and choose <b>Install Team21 Academy</b>',
+  bookmarkKeyNote:'Press {KEY} now to bookmark this page.',
+  installedNote:'Already installed — you are running Team21 as an app.',
+  stayLoggedIn:'You stay signed in on this device, so next time it opens straight to where you left off.',
   tabChat:'Chat', tabIdeas:'Ideas Market', tabGoals:'Goals Journal', tabLinks:'Fun Links',
   ideasMarketTitle:'Ideas Market', ideasMarketDesc:'Pitch an idea. The community votes it up. Best ideas rise.',
   newIdea:'Share an idea', ideaTitlePh:'Your idea in one line…', ideaBodyPh:'Why does it matter? What would it take?',
@@ -1343,6 +1527,23 @@ fr: {
   communityPlaceholder:"Qu'avez-vous en tête ?", emoji:'Émoji',
   membersLabel:'membres', everywhereWeAre:'où que nous soyons', missionLabel:'MISSION',
   chatHubName:'Team21 Chat', newMessagesPill:'Nouveaux messages',
+  getTheApp:'Enregistrer comme application', getTheAppShort:'Obtenir l\'app',
+  installTitle:'Installer sur votre téléphone', bookmarkTitle:'Ajouter aux favoris',
+  installNow:'Installer maintenant', installDesc:'Ajoutez Team21 à votre écran d\'accueil et il s\'ouvre comme une vraie application — plein écran, en un seul geste.',
+  bookmarkDesc:'Gardez le site à portée de clic dans votre navigateur.',
+  copyLink:'Copier le lien', linkCopied:'Lien copié — collez-le où vous voulez pour revenir.',
+  shareLink:'Partager', addBookmarkNow:'Ajouter aux favoris',
+  stepIosShare:'Touchez le bouton <b>Partager</b> en bas de Safari',
+  stepIosAdd:'Faites défiler et touchez <b>Sur l\'écran d\'accueil</b>',
+  stepIosConfirm:'Touchez <b>Ajouter</b> — l\'icône Team21 apparaît sur votre écran d\'accueil',
+  stepAndMenu:'Touchez le menu <b>⋮</b> en haut à droite de Chrome',
+  stepAndAdd:'Touchez <b>Ajouter à l\'écran d\'accueil</b> (ou <b>Installer l\'application</b>)',
+  stepAndConfirm:'Touchez <b>Installer</b> — l\'icône Team21 apparaît sur votre écran d\'accueil',
+  stepDeskInstall:'Cliquez sur l\'<b>icône d\'installation</b> dans la barre d\'adresse',
+  stepDeskMenu:'Ou ouvrez le menu du navigateur et choisissez <b>Installer Team21 Academy</b>',
+  bookmarkKeyNote:'Appuyez sur {KEY} maintenant pour ajouter cette page aux favoris.',
+  installedNote:'Déjà installé — vous utilisez Team21 en tant qu\'application.',
+  stayLoggedIn:'Vous restez connecté sur cet appareil : la prochaine fois, vous reprendrez là où vous vous êtes arrêté.',
   tabChat:'Discussion', tabIdeas:'Marché des idées', tabGoals:'Journal des objectifs', tabLinks:'Liens sympas',
   ideasMarketTitle:'Marché des idées', ideasMarketDesc:'Proposez une idée. La communauté vote. Les meilleures montent.',
   newIdea:'Proposer une idée', ideaTitlePh:'Votre idée en une ligne…', ideaBodyPh:'Pourquoi est-ce important ? Que faudrait-il ?',
@@ -1394,6 +1595,7 @@ const State = {
   user: JSON.parse(localStorage.getItem('t21_user') || 'null'),
   view: 'landing',
   viewParams: {},
+  lastView: JSON.parse(localStorage.getItem('t21_lastview') || 'null'),
   progress: JSON.parse(localStorage.getItem('t21_progress') || '{}'), // { username: { week: {completed,quizScore,quizPassed,attempts} } }
   users: JSON.parse(localStorage.getItem('t21_users') || '[]'),       // cache of allusers (admin/mentor pick lists)
   messages: JSON.parse(localStorage.getItem('t21_messages') || '[]'),
@@ -1437,15 +1639,34 @@ function apiPost(fn, params={}){
 }
 
 /* ================= ROUTER ================= */
-function goto(view, params={}){ State.view = view; State.viewParams = params; render(); window.scrollTo(0,0); }
+/* Views that must never be restored on return (transient or auth screens). */
+const NO_RESTORE_VIEWS = ['landing','chooseLang','login','mentorLogin','register','mentorRegister',
+                          'quiz','finalExam','quizResult','lookingBackQuiz'];
+function rememberView(){
+  if (!State.user) return;
+  if (NO_RESTORE_VIEWS.includes(State.view)) return;
+  try {
+    localStorage.setItem('t21_lastview', JSON.stringify({
+      view: State.view, params: State.viewParams || {},
+      tab: State.communityTab || 'chat', at: Date.now()
+    }));
+  } catch(e){}
+}
+function goto(view, params={}){
+  State.view = view; State.viewParams = params;
+  rememberView();
+  render(); window.scrollTo(0,0);
+}
 function render(){
   const app = document.getElementById('app');
+  if (State.user && State.view !== 'landing') rememberView();
   if (State.view === 'landing' && State.lang){
     app.innerHTML = topbarHtml() + landingView() + footerHtml();
     bindGlobalHandlers();
     return;
   }
-  app.innerHTML = topbarHtml() + '<div class="wrap" id="mainwrap"></div>' + footerHtml();
+  const wrapCls = (State.view === 'community') ? 'wrap wrap-chat' : 'wrap';
+  app.innerHTML = topbarHtml() + '<div class="'+wrapCls+'" id="mainwrap"></div>' + footerHtml();
   const wrap = document.getElementById('mainwrap');
   switch(State.view){
     case 'landing': wrap.innerHTML = landingView(); break;
@@ -1478,7 +1699,12 @@ function render(){
     case 'lookingBackCertificatePage': wrap.innerHTML = certificateView('lookingback'); break;
     case 'mentorForum': wrap.innerHTML = mentorForumView(); refreshForumPosts().then(()=>{ if(State.view==='mentorForum') document.getElementById('mainwrap').innerHTML = mentorForumView(); }); break;
     case 'slbox': wrap.innerHTML = slboxView(); refreshSlboxPosts().then(()=>{ if(State.view==='slbox') document.getElementById('mainwrap').innerHTML = slboxView(); }); break;
-    case 'community': wrap.innerHTML = communityView(); (function(){ const s=document.getElementById('chatScroll'); if(s) s.scrollTop=s.scrollHeight; })(); refreshCommunityPosts().then(()=>{ if(State.view==='community') rerenderCommunity(); }); break;
+    case 'community':
+      wrap.innerHTML = communityView();
+      bindChatFit(); fitChatShell();
+      (function(){ const s=document.getElementById('chatScroll'); if(s) s.scrollTop=s.scrollHeight; })();
+      refreshCommunityPosts().then(()=>{ if(State.view==='community') rerenderCommunity(); });
+      break;
     case 'askAdmin': wrap.innerHTML = askAdminView(); refreshThread(State.user.username, ADMIN_USERNAME).then(()=>{ if(State.view==='askAdmin') document.getElementById('mainwrap').innerHTML = askAdminView(); }); break;
     case 'play': wrap.innerHTML = playView(); break;
     case 'playGame': wrap.innerHTML = playGameView(State.viewParams.kind); break;
@@ -1524,9 +1750,109 @@ function quickLinksHtml(){
   return `<div class="quicklinks">${links.map(([v,l])=>`<button class="ql-btn ${State.view===v?'active':''}" onclick="goto('${v}')">${l}</button>`).join('')}</div>`;
 }
 function footerHtml(){
-  return `<div class="footer-credit">${t('copyright')} &nbsp;·&nbsp; ${t('bilingualNote')}</div>`;
+  return `<div class="footer-credit">${t('copyright')} &nbsp;·&nbsp; ${t('bilingualNote')}
+    &nbsp;·&nbsp; <button class="gta-link" onclick="openGetApp()">&#128241; ${t('getTheApp')}</button></div>`;
 }
 function roleLabel(r){ return t(r === 'smentor' ? 'smentor' : r); }
+
+/* ================= SAVE AS APP / BOOKMARK ================= */
+let _installEvent = null;
+function initInstallPrompt(){
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();          // keep the mini-infobar out of the way
+    _installEvent = e;           // stash it for our own button
+  });
+  window.addEventListener('appinstalled', function(){ _installEvent = null; });
+}
+function isStandalone(){
+  return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+      || window.navigator.standalone === true;
+}
+function devicePlatform(){
+  const ua = navigator.userAgent || '';
+  if (/iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && 'ontouchend' in document)) return 'ios';
+  if (/Android/i.test(ua)) return 'android';
+  return 'desktop';
+}
+function bookmarkKey(){
+  return /Mac|iPhone|iPad/i.test(navigator.platform || navigator.userAgent) ? '\u2318 + D' : 'Ctrl + D';
+}
+function openGetApp(){
+  closeGetApp();
+  const plat = devicePlatform();
+  const installed = isStandalone();
+  let steps = '';
+  if (plat === 'ios')
+    steps = `<li>${t('stepIosShare')}</li><li>${t('stepIosAdd')}</li><li>${t('stepIosConfirm')}</li>`;
+  else if (plat === 'android')
+    steps = `<li>${t('stepAndMenu')}</li><li>${t('stepAndAdd')}</li><li>${t('stepAndConfirm')}</li>`;
+  else
+    steps = `<li>${t('stepDeskInstall')}</li><li>${t('stepDeskMenu')}</li>`;
+
+  const el = document.createElement('div');
+  el.className = 'gta-backdrop';
+  el.id = 'gtaBackdrop';
+  el.onclick = function(e){ if (e.target === el) closeGetApp(); };
+  el.innerHTML = `
+    <div class="gta-modal" role="dialog" aria-modal="true">
+      <div class="gta-head">
+        <span style="font-size:1.4em;">&#128241;</span>
+        <h3>${t('getTheApp')}</h3>
+        <button class="gta-x" onclick="closeGetApp()" aria-label="Close">&#10005;</button>
+      </div>
+      <div class="gta-body">
+        ${installed ? `<div class="gta-done">&#10003; ${t('installedNote')}</div>` : `
+        <div class="gta-sect">
+          <h4><span>&#11015;&#65039;</span> ${t('installTitle')}</h4>
+          <p>${t('installDesc')}</p>
+          ${_installEvent ? `<button class="gta-btn gold" onclick="triggerNativeInstall()">${t('installNow')}</button>` : ''}
+          <ol class="gta-steps">${steps}</ol>
+          <div class="gta-note">${t('stayLoggedIn')}</div>
+        </div>`}
+        <div class="gta-sect">
+          <h4><span>&#128278;</span> ${t('bookmarkTitle')}</h4>
+          <p>${t('bookmarkDesc')}</p>
+          <button class="gta-btn ghost" onclick="copySiteLink(this)">&#128203; ${t('copyLink')}</button>
+          ${navigator.share ? `<button class="gta-btn ghost" onclick="shareSiteLink()">&#8599; ${t('shareLink')}</button>` : ''}
+          ${plat === 'desktop' ? `<div class="gta-note">${t('bookmarkKeyNote').replace('{KEY}','<span class="gta-kbd">'+bookmarkKey()+'</span>')}</div>` : ''}
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(el);
+  document.addEventListener('keydown', _gtaEsc);
+}
+function _gtaEsc(e){ if (e.key === 'Escape') closeGetApp(); }
+function closeGetApp(){
+  const el = document.getElementById('gtaBackdrop');
+  if (el) el.remove();
+  document.removeEventListener('keydown', _gtaEsc);
+}
+async function triggerNativeInstall(){
+  if (!_installEvent) return;
+  const ev = _installEvent;
+  _installEvent = null;
+  try { ev.prompt(); await ev.userChoice; } catch(e){}
+  closeGetApp();
+}
+function copySiteLink(btn){
+  const url = location.href;
+  const done = () => { if (btn){ btn.textContent = '\u2713 ' + t('linkCopied'); btn.disabled = true; } };
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(done).catch(()=>fallbackCopy(url, done));
+  } else fallbackCopy(url, done);
+}
+function fallbackCopy(text, done){
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.left = '-9999px';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); ta.remove(); done();
+  } catch(e){ prompt(t('copyLink'), text); }
+}
+function shareSiteLink(){
+  if (!navigator.share) return;
+  navigator.share({ title: 'Team21 Academy', text: t('tagline'), url: location.href }).catch(()=>{});
+}
 
 /* ================= LANDING / LANGUAGE / AUTH ================= */
 function landingQuotes(){
@@ -1587,12 +1913,6 @@ function landingView(){
             <h3>${t(f.key)}</h3>
             <p>${State.lang==='fr'?f.fr:f.en}</p>
           </div>`).join('')}
-      </div>
-      <div class="trust-strip">
-        <div class="stat"><span class="n">27</span><span class="l">${State.lang==='fr'?'Semaines':'Weeks'}</span></div>
-        <div class="stat"><span class="n">2016</span><span class="l">${State.lang==='fr'?'Depuis':'Since'}</span></div>
-        <div class="stat"><span class="n">EN / FR</span><span class="l">${State.lang==='fr'?'Bilingue':'Bilingual'}</span></div>
-        <div class="stat"><span class="n">171</span><span class="l">${State.lang==='fr'?'Participants à la recherche':'Research Participants'}</span></div>
       </div>
     </div>
   </div>`;
@@ -1698,7 +2018,10 @@ async function doRegister(kind){
 
 function doLogout(){
   if(!confirm(t('signOutConfirm'))) return;
-  State.user = null; localStorage.removeItem('t21_user');
+  State.user = null;
+  localStorage.removeItem('t21_user');
+  localStorage.removeItem('t21_lastview');
+  State.lastView = null;
   goto('landing');
 }
 
@@ -2658,9 +2981,37 @@ const EMOJI_TABS_DATA = {
 };
 const EMOJI_TAB_ICONS = {smileys:'😊',gestures:'👍',symbols:'❤️',stickers:'🌼'};
 let _emojiTab = 'smileys';
+let _searchOpen = false;
 let _pinnedDismissed = false;
+function toggleChatSearch(){
+  _searchOpen = !_searchOpen;
+  if (!_searchOpen) State.communitySearch = '';
+  rerenderCommunity();
+  if (_searchOpen){
+    const i = document.getElementById('communitySearch');
+    if (i) i.focus();
+  }
+}
 let _ctxMenu = null;
 let _quickReactBar = null;
+
+/* A dozen colours that all clear 4.5:1 on a white bubble, so in a busy
+   thread you can tell who is speaking before you read the name. */
+const SPEAKER_COLORS = ['#1F7ACA','#C2410C','#7C3AED','#0F766E','#B91C5C','#15803D',
+                        '#A16207','#1E40AF','#9D174D','#065F46','#9A3412','#5B21B6'];
+function speakerColor(username){
+  let h = 0; const s = String(username||'');
+  for (let i=0;i<s.length;i++) h = (h*33 + s.charCodeAt(i)) >>> 0;
+  return SPEAKER_COLORS[h % SPEAKER_COLORS.length];
+}
+function roleTagFor(username){
+  const u = (State.users||[]).find(x=>x.username===username);
+  const r = u && u.role;
+  if (r === 'admin')   return State.lang==='fr' ? 'ADMIN'  : 'ADMIN';
+  if (r === 'smentor') return State.lang==='fr' ? 'SR'     : 'SR';
+  if (r === 'mentor')  return State.lang==='fr' ? 'MENTOR' : 'MENTOR';
+  return '';
+}
 
 function getUserAvatar(username){
   try {
@@ -2751,18 +3102,43 @@ function communityView(){
         </div>
       </div>
       <div class="ch-header-actions">
+        <button class="ch-icon-btn ${(_searchOpen||State.communitySearch)?'on':''}" title="${t('searchMessages')}" onclick="toggleChatSearch()">&#128269;</button>
+        <button class="ch-icon-btn" title="${t('getTheApp')}" onclick="openGetApp()">&#128241;</button>
         <button class="ch-icon-btn" title="Set your avatar" onclick="promptSetAvatar()">&#128100;</button>
       </div>
     </div>
-    <div class="chat-vision"><em>${t('missionLabel')}</em>${t('communityVision')}</div>
+    <div class="chat-vision"><em>${t('missionLabel')}</em><span class="cv-text">${t('communityVision')}</span></div>
     <div class="hub-tabs">${tabs}</div>
     ${panel}
   </div>
   <button class="small-btn" style="margin-top:14px;" onclick="goto('dashboard')">${t('backToDash')}</button>`;
 }
 
+/* The topbar + quick-links strip changes height with viewport width and
+   language, so size the chat shell from where it actually sits. */
+function fitChatShell(){
+  const shell = document.getElementById('chatShell');
+  if (!shell) return;
+  const top = shell.getBoundingClientRect().top;
+  const gutter = window.innerWidth <= 900 ? 10 : 22;   // breathing room under the shell
+  const h = Math.max(380, window.innerHeight - top - gutter);
+  shell.style.height = h + 'px';
+  const sc = document.getElementById('chatScroll');
+  if (sc) sc.style.minHeight = '0px';
+}
+let _fitBound = false;
+function bindChatFit(){
+  if (_fitBound) return;
+  _fitBound = true;
+  const run = () => { if (State.view === 'community') fitChatShell(); };
+  window.addEventListener('resize', run);
+  window.addEventListener('orientationchange', () => setTimeout(run, 180));
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', run);
+}
+
 function switchHubTab(k){
   State.communityTab = k;
+  rememberView();
   rerenderCommunity();
 }
 
@@ -2774,11 +3150,18 @@ function chatPanelHtml(me){
   const pinned = postsOfKind('chat').filter(p=>p.pinned);
 
   let body = '';
-  let lastDay = null;
+  let lastDay = null, prevFrom = null, prevTs = 0;
   posts.forEach(p => {
     const day = dayLabelFor(p.timestamp);
-    if (day !== lastDay){ body += `<div class="chat-daysep"><span>${day}</span></div>`; lastDay = day; }
-    body += communityBubbleHtml(p, me);
+    if (day !== lastDay){
+      body += `<div class="chat-daysep"><span>${day}</span></div>`;
+      lastDay = day; prevFrom = null;
+    }
+    // Same speaker again within 4 minutes and not a reply: tuck it under the
+    // previous bubble instead of repeating their name and avatar.
+    const grouped = (p.from === prevFrom) && !p.replyTo && (p.timestamp - prevTs < 4*60*1000);
+    body += communityBubbleHtml(p, me, grouped);
+    prevFrom = p.from; prevTs = p.timestamp;
   });
   if (!posts.length) body = `<div class="chat-empty">${q ? t('noResults') : t('noPostsYet')}</div>`;
 
@@ -2790,12 +3173,12 @@ function chatPanelHtml(me){
       <span>${escapeHtml(pinned[pinned.length-1].text.slice(0,100))}${pinned[pinned.length-1].text.length>100?'…':''}</span>
       <button class="pin-dismiss" onclick="event.stopPropagation();_pinnedDismissed=true;rerenderCommunity();">&#10005;</button>
     </div>` : ''}
-    <div class="chat-search">
+    <div class="chat-search" id="chatSearchBar" style="${(_searchOpen||State.communitySearch)?'':'display:none;'}">
       <input id="communitySearch" placeholder="&#128269; ${t('searchMessages')}" value="${escapeHtml(State.communitySearch||'')}"
         oninput="State.communitySearch=this.value; rerenderCommunity(true);">
     </div>
     <div class="chat-scroll" id="chatScroll" onscroll="chatScrolled()" onclick="closeCtxMenu()">
-      ${body}
+      <div class="chat-inner">${body}</div>
       <div class="new-msg-pill" id="newMsgPill" onclick="scrollToBottom()">&#8595; ${t('newMessagesPill')}</div>
     </div>
     <div class="typing-bar" id="typingBar" style="display:none;">
@@ -2803,6 +3186,7 @@ function chatPanelHtml(me){
       <span id="typingName"></span>
     </div>
     <div class="chat-composer" style="position:relative;">
+      <div class="composer-inner">
       ${replyTo ? `<div class="replying-bar">
           <div class="rb-inner">
             <div class="rb-name">${escapeHtml(replyTo.fromName||replyTo.from)}</div>
@@ -2834,6 +3218,7 @@ function chatPanelHtml(me){
         <button class="composer-btn send" id="communitySendBtn" onclick="postToCommunity()">&#10148;</button>
       </div>
       <div class="format-hint">${t('formatHint')}</div>
+      </div>
     </div>`;
 }
 
@@ -3084,7 +3469,7 @@ function updateSendBtn(){
   if (voice) voice.style.display = has ? 'none' : '';
 }
 
-function communityBubbleHtml(p, me){
+function communityBubbleHtml(p, me, grouped){
   const mine = p.from === me;
   const reactions = p.reactions || {};
   const reactChips = Object.keys(reactions).filter(e=>(reactions[e]||[]).length)
@@ -3093,22 +3478,28 @@ function communityBubbleHtml(p, me){
   const replied = p.replyTo ? State.communityPosts.find(x=>x.id===p.replyTo) : null;
   const time = new Date(p.timestamp).toLocaleTimeString(State.lang==='fr'?'fr-FR':'en-US',{hour:'2-digit',minute:'2-digit'});
   const avatar = getUserAvatar(p.from);
-  return `<div class="msg-row ${mine?'mine':''}" id="msg_${p.id}"
+  const spk = speakerColor(p.from);
+  const role = mine ? '' : roleTagFor(p.from);
+  const showHead = !mine && !grouped;
+  return `<div class="msg-row ${mine?'mine':''} ${grouped?'grouped':''}" id="msg_${p.id}"
+    style="--spk:${spk};"
     oncontextmenu="showCtxMenu(event,'${p.id}',${mine})"
     ontouchstart="startLongPress(event,'${p.id}',${mine})"
     ontouchend="cancelLongPress()"
     ontouchmove="cancelLongPress()">
-    ${!mine?`<div class="msg-avatar" title="${escapeHtml(p.fromName||p.from)}" onclick="showQuickReact(event,'${p.id}')">${avatar}</div>`:''}
+    ${!mine?(grouped
+      ? `<div class="msg-avatar spacer"></div>`
+      : `<div class="msg-avatar" style="border-color:${spk};" title="${escapeHtml(p.fromName||p.from)}" onclick="showQuickReact(event,'${p.id}')">${avatar}</div>`):''}
     <div class="bubble-wrap">
       <div class="bubble" id="bub_${p.id}">
-        ${!mine?`<div class="b-author">${escapeHtml(p.fromName||p.from)}</div>`:''}
+        ${showHead?`<div class="b-author">${escapeHtml(p.fromName||p.from)}${role?`<span class="b-role">${role}</span>`:''}</div>`:''}
         ${replied?`<div class="b-reply" onclick="scrollToPost('${replied.id}')">
           <strong>${escapeHtml(replied.fromName||replied.from)}</strong>
-          <div class="b-rtext">${escapeHtml(replied.text.slice(0,80))}</div>
+          <div class="b-rtext">${escapeHtml(replied.text.slice(0,110))}</div>
         </div>`:''}
         <div class="b-text">${formatMessageText(p.text)}</div>
         <div class="b-footer">
-          ${p.pinned?'<span style="font-size:.65em;">&#128204;</span>':''}
+          ${p.pinned?'<span style="font-size:.74em;">&#128204;</span>':''}
           <span class="b-time">${time}</span>
           ${mine?'<span class="b-tick">&#10003;&#10003;</span>':''}
         </div>
@@ -3237,6 +3628,7 @@ function rerenderCommunity(keepFocus){
   const panel = document.getElementById('mainwrap').querySelector('.hub-panel');
   const panelTop = panel ? panel.scrollTop : 0;
   document.getElementById('mainwrap').innerHTML = communityView();
+  fitChatShell();
   const s2 = document.getElementById('chatScroll');
   if (s2 && atBottom) s2.scrollTop = s2.scrollHeight;
   const p2 = document.getElementById('mainwrap').querySelector('.hub-panel');
@@ -3755,14 +4147,29 @@ function saveWeekContent(wk){
 <script>
 /* ================= BOOT ================= */
 async function boot(){
+  initInstallPrompt();
   if (State.user){
-    // refresh cached lists quietly in the background, then render immediately from cache
-    render();
-    await hydrateAfterLogin();
-    render();
+    // Returning on a device they already signed in on: skip the login screen
+    // and put them back where they left off.
+    restoreLastView();
+    render();                       // paint instantly from cache
+    try { await hydrateAfterLogin(); } catch(e){}
+    render();                       // repaint with fresh data
   } else {
     render();
   }
+}
+function restoreLastView(){
+  const lv = State.lastView;
+  // Default a signed-in user to their dashboard rather than the marketing page.
+  State.view = 'dashboard'; State.viewParams = {};
+  if (!lv || !lv.view) return;
+  // Only honour a saved spot from the last 30 days.
+  if (lv.at && (Date.now() - lv.at) > 30*24*60*60*1000) return;
+  if (NO_RESTORE_VIEWS.includes(lv.view)) return;
+  State.view = lv.view;
+  State.viewParams = lv.params || {};
+  if (lv.tab) State.communityTab = lv.tab;
 }
 boot();
 </script>
